@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/headerLayout"
+        android:background="@color/colorOrgHeader">
+
+        <TextView
+            android:id="@+id/textUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="Lato Medium"
+            android:text="HELLO"
+            android:gravity="end"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/textDealership"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="Lato Medium"
+            android:text="DEALERSHIP"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/textHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="50dp"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="Lato Regular"
+            android:text="@string/default_header"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

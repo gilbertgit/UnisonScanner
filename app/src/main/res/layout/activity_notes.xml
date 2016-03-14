@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.NotesActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="24sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <TextView
+        android:id="@+id/textBin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="12sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <TextView
+        android:id="@+id/textNotesHeader"
+        android:labelFor="@+id/textNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_marginTop="200dp"
+        android:gravity="start"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorNotesTextHeader"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+    <EditText
+        android:id="@+id/textNotes"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="233dp"
+        android:gravity="start"
+        android:fontFamily="Lato Regular"
+        android:background="@android:color/white"
+        android:textSize="14sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:inputType="text"/>
+
+    <Button
+        android:id="@+id/buttonCheckIn"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_marginTop="540dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorCheckInButton"
+        android:textColor="@android:color/white"
+        android:text="@string/check_in_button"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+</RelativeLayout>

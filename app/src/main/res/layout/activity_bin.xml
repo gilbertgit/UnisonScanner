@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.BinActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="20sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <ListView
+        android:id="@+id/listBins"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="110dp"
+        android:padding="20dp"
+        android:divider="@color/colorDefaultBg"
+        android:dividerHeight="10dp"/>
+
+</RelativeLayout>

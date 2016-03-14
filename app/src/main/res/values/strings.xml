@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">UnisonScanner</string>
+    <string name="admin_password">1204</string>
+    <string name="hello_admin">ADMIN</string>
+    <string name="default_header">UNISON SCANNER APP</string>
+    <string name="empty_org">(NO ORGANIZATION SELECTED)</string>
+    <string name="empty_vin">- - - - - - - - - - - - - - - - -</string>
+    <string name="login_header">ENTER PIN</string>
+    <string name="org_header">SELECT ORGANIZATION</string>
+    <string name="loc_header">SELECT LOCATION</string>
+    <string name="scan_header">SCAN VEHICLE</string>
+    <string name="bin_header">SELECT BIN</string>
+    <string name="vehicle_header">VEHICLE INFO</string>
+    <string name="path_header">SELECT PATH</string>
+    <string name="footer">A Product of CP Handheld</string>
+    <string name="greeting">HELLO,</string>
+    <string name="notes_text_header">NOTES:</string>
+    <string name="check_in_button">CHECK IN</string>
+    <string name="submit_info_button">SELECT BIN</string>
+    <string name="custom_path_item">Request Custom Path</string>
+    <string name="no_path_item">No Path</string>
+    <string name="change_url_button">Change DB</string>
+    <string name="custom_path_button">REQUEST CUSTOM PATH</string>
+    <string name="no_path_button">NO PATH / CHECK IN</string>
+</resources>

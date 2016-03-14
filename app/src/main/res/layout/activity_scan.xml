@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.ScanActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_marginTop="250dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textSize="24sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <ImageView
+        android:id="@+id/imageStatus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/check"
+        android:layout_below="@id/textVIN"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="400dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Medium"
+        android:textSize="12sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+</RelativeLayout>

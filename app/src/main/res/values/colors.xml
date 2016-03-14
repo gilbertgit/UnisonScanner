@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorLoginBg">#5BA8D3</color>
+    <color name="colorLoginOrgText">#173152</color>
+    <color name="colorLoginFooter">#88BBDD</color>
+    <color name="colorDefaultBg">#F3F3F3</color>
+    <color name="colorOrgHeader">#5BA8D3</color>
+    <color name="colorLocHeader">#3FA577</color>
+    <color name="colorBinHeader">#715E83</color>
+    <color name="colorPathHeader">#3F6CA6</color>
+    <color name="colorScanHeader">#5BA8D3</color>
+    <color name="colorVehicleHeader">#5BA8D3</color>
+    <color name="colorNotesHeader">#3F6CA6</color>
+    <color name="colorListBgUnselected">#FFFFFF</color>
+    <color name="colorListTextUnselected">#828281</color>
+    <color name="colorLocBgSelected">#D6ECDD</color>
+    <color name="colorLocTextSelected">#3FA577</color>
+    <color name="colorOrgBgSelected">#D2E4F1</color>
+    <color name="colorOrgTextSelected">#3F6CA6</color>
+    <color name="colorBinBgSelected">#CFC9D5</color>
+    <color name="colorBinTextSelected">#715E83</color>
+    <color name="colorPathBgSelected">#D2E4F1</color>
+    <color name="colorPathTextSelected">#3F6CA6</color>
+    <color name="colorSubHeaderText">#828281</color>
+    <color name="colorNotesTextHeader">#818281</color>
+    <color name="colorCheckInButton">#3FA577</color>
+</resources>

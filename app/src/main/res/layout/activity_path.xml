@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.PathActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="20sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <TextView
+        android:id="@+id/textBin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="12sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <ListView
+        android:id="@+id/listPaths"
+        android:layout_height="350dp"
+        android:layout_width="match_parent"
+        android:layout_marginTop="130dp"
+        android:padding="20dp"
+        android:divider="@color/colorDefaultBg"
+        android:dividerHeight="10dp"/>
+
+    <Button
+        android:id="@+id/buttonCustomPath"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_below="@+id/listPaths"
+        android:layout_marginTop="20dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorPathHeader"
+        android:textColor="@android:color/white"
+        android:text="@string/custom_path_button"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+    <Button
+        android:id="@+id/buttonNoPath"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_below="@+id/buttonCustomPath"
+        android:layout_marginTop="15dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorCheckInButton"
+        android:textColor="@android:color/white"
+        android:text="@string/no_path_button"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+</RelativeLayout>
