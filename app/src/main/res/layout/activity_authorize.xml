@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.cphandheld.unisonscanner.LoginActivity"
+                >
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/logo"
+        android:src="@drawable/logo"
+        android:soundEffectsEnabled="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:id="@+id/textOrgName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logo"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:textSize="12sp"
+        android:textColor="@color/colorLoginOrgText"
+        android:fontFamily="Lato Regular"
+        android:text=""/>
+
+    <TextView
+        android:id="@+id/enterPin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textOrgName"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:fontFamily="Lato Regular"
+        android:text="@string/authorize_header"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="160dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/entry1"
+            android:src="@drawable/btn_no_pin" />
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/entry2"
+            android:src="@drawable/btn_no_pin"
+            android:layout_marginStart="15dp"/>
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/entry3"
+            android:src="@drawable/btn_no_pin"
+            android:layout_marginStart="15dp"/>
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/entry4"
+            android:src="@drawable/btn_no_pin"
+            android:layout_marginStart="15dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="205dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button1"
+            android:tag="1"
+            android:src="@drawable/btn1_selector" />
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button2"
+            android:tag="2"
+            android:src="@drawable/btn2_selector"
+            android:layout_marginStart="20dp"/>
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button3"
+            android:tag="3"
+            android:src="@drawable/btn3_selector"
+            android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="290dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button4"
+            android:tag="4"
+            android:src="@drawable/btn4_selector" />
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button5"
+            android:tag="5"
+            android:src="@drawable/btn5_selector"
+            android:layout_marginStart="20dp"/>
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button6"
+            android:tag="6"
+            android:src="@drawable/btn6_selector"
+            android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="375dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button7"
+            android:tag="7"
+            android:src="@drawable/btn7_selector" />
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button8"
+            android:tag="8"
+            android:src="@drawable/btn8_selector"
+            android:layout_marginStart="20dp"/>
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button9"
+            android:tag="9"
+            android:src="@drawable/btn9_selector"
+            android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="460dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/button0"
+            android:tag="0"
+            android:src="@drawable/btn0_selector"
+            android:layout_marginStart="85dp"/>
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:id="@+id/buttonBack"
+            android:src="@drawable/btn_delete_selector"
+            android:layout_marginStart="20dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logo"
+        android:gravity="center"
+        android:layout_marginTop="500dp"
+        android:textSize="10sp"
+        android:textColor="@color/colorLoginFooter"
+        android:fontFamily="Lato Medium"
+        android:text="@string/footer"/>
+
+</RelativeLayout>

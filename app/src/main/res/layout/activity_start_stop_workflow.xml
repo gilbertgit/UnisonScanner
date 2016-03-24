@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.StartStopWorkflowActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="24sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <TextView
+        android:id="@+id/textLabelYear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Year: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textVIN2"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="30dp"
+        />
+
+    <TextView
+        android:id="@+id/textLabelMake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Make: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textLabelYear"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30dp"
+        />
+
+    <TextView
+        android:id="@+id/textLabelModel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Model: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textLabelMake"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30dp"
+        />
+
+    <TextView
+        android:id="@+id/textLabelColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Color: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textLabelModel"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30dp"
+        />
+
+    <TextView
+        android:id="@+id/textYear2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textVIN2"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="130dp"
+        />
+
+    <TextView
+        android:id="@+id/textMake2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textYear2"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="130dp"
+        />
+
+    <TextView
+        android:id="@+id/textModel2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textMake2"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="130dp"
+        />
+
+    <TextView
+        android:id="@+id/textColor2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_below="@+id/textModel2"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="130dp"
+        />
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/textColor2"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginLeft="10dp"
+    android:paddingBottom="5dp"
+    android:background="@color/colorBinBgSelected">
+    <TextView
+        android:id="@+id/textLabelBin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bin: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorBinTextSelected"
+        android:textSize="22sp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="23dp"
+        />
+    <TextView
+        android:id="@+id/textBin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorBinTextSelected"
+        android:textSize="22sp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="55dp"
+        />
+</LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textColor2"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:paddingBottom="5dp"
+        >
+    <TextView
+        android:id="@+id/textLabelServices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Services: "
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="22dp"
+        />
+    <TextView
+        android:id="@+id/textModule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="22sp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="4dp"
+        />
+    </LinearLayout>
+    <ListView
+        android:id="@+id/listServices"
+        android:layout_height="220dp"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/layoutService"
+        android:layout_marginTop="0dp"
+        android:paddingLeft="130dp"
+        android:divider="@color/colorDefaultBg"
+        android:dividerHeight="0dp"
+        />
+    <Button
+        android:id="@+id/buttonStartStop"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_below="@+id/textVIN"
+        android:layout_marginTop="570dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorCheckInButton"
+        android:textColor="@android:color/white"
+        android:text="@string/start_workflow_button"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+    <!--<Button
+        android:id="@+id/buttonMove"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_below="@+id/buttonStartStop"
+        android:layout_marginTop="10dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorBinTextSelected"
+        android:textColor="@android:color/white"
+        android:text="@string/move_button"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>-->
+</RelativeLayout>

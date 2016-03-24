@@ -32,13 +32,11 @@ public class AdapterBin extends ArrayAdapter<Bin> {
         //Inflate view for each element in list.
         convertView = mInflater.inflate(R.layout.generic_list, null);
 
-        //Get details for current server
+        //Get details for bin
         Bin bin = mBins.get(position);
 
-        //Set server name
         ((TextView) convertView.findViewById(R.id.rowTextView)).setText(bin.getName());
 
-        //Now we set the status text and color
         TextView status = (TextView) convertView.findViewById(R.id.rowTextView);
 
         if(bin.isSelected()){

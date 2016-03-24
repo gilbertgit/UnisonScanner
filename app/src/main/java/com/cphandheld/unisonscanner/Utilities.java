@@ -5,6 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,8 @@ public class Utilities {
     public static final String PathURL = "api/PathTemplate/Location/";
     public static final String VehicleInfoURL = "api/TicketHeader/DecodeVin/";
     public static final String VehicleCheckInURL = "api/Inventory/CheckIn";
+    public static final String VehicleTicketSuffix = "/Ticket";
+    public static final String StartStopURL = "api/TicketService/SetWork/CheckInApp";
 
     public static User currentUser = new User();
     public static CurrentContext currentContext = new CurrentContext();
@@ -55,10 +59,32 @@ public class Utilities {
 
     }
 
+    public static String CheckVinSpecialCases(String vin)
+    {
+        String formattedVIN = vin;
+
+        if (vin.length() > 17)
+        {
+            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0,1).equals(" ")) //                        Ford, Mazda, Honda Issues
+                formattedVIN = vin.substring(1, 17);
+            else if (vin.length() == 18)
+                formattedVIN = vin.substring(0, 17); // Lexus Issue
+        }
+
+        return formattedVIN;
+    }
+
     // This is temporary function for NADA
     public static void SetAppUrl(String url)
     {
         AppURL = url;
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }

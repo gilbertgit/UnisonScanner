@@ -5,7 +5,8 @@
     <string name="default_header">UNISON SCANNER APP</string>
     <string name="empty_org">(NO ORGANIZATION SELECTED)</string>
     <string name="empty_vin">- - - - - - - - - - - - - - - - -</string>
-    <string name="login_header">ENTER PIN</string>
+    <string name="login_header">ENTER PIN TO LOGIN</string>
+    <string name="authorize_header">ENTER PIN TO AUTHORIZE</string>
     <string name="org_header">SELECT ORGANIZATION</string>
     <string name="loc_header">SELECT LOCATION</string>
     <string name="scan_header">SCAN VEHICLE</string>
@@ -21,5 +22,9 @@
     <string name="no_path_item">No Path</string>
     <string name="change_url_button">Change DB</string>
     <string name="custom_path_button">REQUEST CUSTOM PATH</string>
+    <string name="start_workflow_button">START</string>
+    <string name="stop_workflow_button">STOP</string>
+    <string name="move_button">MOVE</string>
     <string name="no_path_button">NO PATH / CHECK IN</string>
+    <string name="vehicle_info_header">VEHICLE INFORMATION</string>
 </resources>

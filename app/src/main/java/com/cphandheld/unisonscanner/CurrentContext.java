@@ -1,6 +1,7 @@
 package com.cphandheld.unisonscanner;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by Supernova on 2/16/2016.
@@ -17,9 +18,8 @@ public class CurrentContext implements Serializable
     boolean startPath;
     String pathName;
     String notes;
+    VehicleTicket vehicleTicket;
 
     CurrentContext() {
     }
-
-
 }

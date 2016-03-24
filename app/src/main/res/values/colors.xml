@@ -24,4 +24,5 @@
     <color name="colorSubHeaderText">#828281</color>
     <color name="colorNotesTextHeader">#818281</color>
     <color name="colorCheckInButton">#3FA577</color>
+    <color name="colorStop">#A54056</color>
 </resources>

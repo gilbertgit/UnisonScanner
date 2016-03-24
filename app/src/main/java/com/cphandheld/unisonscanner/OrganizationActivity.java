@@ -1,5 +1,6 @@
 package com.cphandheld.unisonscanner;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -35,6 +36,7 @@ public class OrganizationActivity extends HeaderActivity
     ArrayList orgs;
     TextView textUrl;
     Button buttonChangeUrl;
+    private ProgressDialog mProgressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -42,6 +44,12 @@ public class OrganizationActivity extends HeaderActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organization);
         setHeader(R.color.colorOrgHeader, getResources().getString(R.string.hello_admin), "", R.string.org_header);
+
+        mProgressDialog = new ProgressDialog(OrganizationActivity.this);
+        mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setTitle("Fetching organizations...");
+        mProgressDialog.setMessage("Just hold on a sec...");
 
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -166,7 +174,7 @@ public class OrganizationActivity extends HeaderActivity
 
         @Override
         protected void onPreExecute() {
-            //Toast.makeText(getApplicationContext(), "Loading organizations...", Toast.LENGTH_SHORT).show();
+            mProgressDialog.show();
         }
 
         @Override
@@ -181,6 +189,7 @@ public class OrganizationActivity extends HeaderActivity
                 ArrayAdapter<Organization> adapter = new ArrayAdapter<Organization>(OrganizationActivity.this, R.layout.generic_list, orgs);
                 listOrganizations.setAdapter(adapter);
             }
+            mProgressDialog.dismiss();
         }
 
         private void getOrganizations() {

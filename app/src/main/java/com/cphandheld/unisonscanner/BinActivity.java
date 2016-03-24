@@ -36,12 +36,16 @@ public class BinActivity extends HeaderActivity {
     ListView listBins;
     ArrayList bins;
     String origin;
+    private DBHelper dbHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bin);
         setHeader(R.color.colorBinHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, R.string.bin_header);
+
+        dbHelper = new DBHelper(BinActivity.this);
+        dbHelper.getWritableDatabase();
 
         Intent intent = getIntent();
         if (intent.hasExtra("origin"))
@@ -153,8 +157,6 @@ public class BinActivity extends HeaderActivity {
         protected Void doInBackground(String... params) {
 
             getBins(Integer.parseInt(params[0]));
-
-
             return null;
         }
 
@@ -183,6 +185,7 @@ public class BinActivity extends HeaderActivity {
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if (connection.getResponseCode() == 200) {
+                    dbHelper.clearBinTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
@@ -199,6 +202,7 @@ public class BinActivity extends HeaderActivity {
                             }
                         }
 
+                        dbHelper.insertBin(binId, name);
                         Bin bin = new Bin(name, binId, selected);
 
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.cphandheld.unisonscanner"
           xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="1"
-    android:versionName="1.0">
+    android:versionCode="3"
+    android:versionName="1.2">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="com.symbol.emdk.permission.EMDK"/>
 
@@ -27,6 +28,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
         </activity>
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
@@ -46,7 +48,12 @@
             android:name=".ScanActivity"
             android:label="ScanActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
+            <intent-filter>
+                <action android:name="com.cphandheld.unisonscanner.RECVRBI"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
         <activity android:name=".BinActivity"
                   android:label="BinActivity"
@@ -66,12 +73,30 @@
         <activity android:name=".VehicleActivity"
                   android:label="VehicleActivity"
                   android:screenOrientation="portrait"
-                  android:theme="@style/AppTheme.NoActionBar">
+                  android:theme="@style/AppTheme.NoActionBar"
+                  android:launchMode="singleTask">
         </activity>
         <activity android:name=".NotesActivity"
                   android:label="NotesActivity"
                   android:screenOrientation="portrait"
                   android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity android:name=".StartStopWorkflowActivity"
+                  android:label="VehicleActivity"
+                  android:screenOrientation="portrait"
+                  android:theme="@style/AppTheme.NoActionBar"
+                  android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="com.cphandheld.unisonscanner.RECVRBISS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AuthorizeActivity"
+            android:label="AuthorizeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>
 

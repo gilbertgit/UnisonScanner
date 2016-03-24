@@ -73,7 +73,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Fetching vehicle info...");
-        mProgressDialog.setMessage("Just hold on a sec...");
+        mProgressDialog.setMessage("Hold on a sec...");
 
 
         EMDKResults results = EMDKManager.getEMDKManager(getApplicationContext(), this);
@@ -257,7 +257,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         @Override
         protected void onPreExecute() {
             mProgressDialog.show();
-            //Toast.makeText(getApplicationContext(), "Verifying vehicle information...", Toast.LENGTH_SHORT).show();
         }
 
         @Override

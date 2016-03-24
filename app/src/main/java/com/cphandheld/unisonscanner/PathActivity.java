@@ -106,7 +106,11 @@ public class PathActivity extends HeaderActivity
                 Utilities.currentContext.pathName = getResources().getString(R.string.no_path_item);;
                 Utilities.currentContext.startPath = false;
 
-                new CheckIn().execute();
+                if(Utilities.isNetworkAvailable(getApplicationContext()))
+                    new CheckIn().execute();
+                else {
+                    Toast.makeText(getApplicationContext(), "Please connect to internet", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -219,20 +223,6 @@ public class PathActivity extends HeaderActivity
                         path.startPath = true;
                         paths.add(path);
                     }
-
-                    // add item for Custom Path (-1)
-//                    Path p = new Path();
-//                    p.name = getResources().getString(R.string.custom_path_item);
-//                    p.pathId = -1;
-//                    p.startPath = true;
-//                    paths.add(p);
-//
-//                    // add item for No Path (-1)
-//                    p = new Path();
-//                    p.name = getResources().getString(R.string.no_path_item);
-//                    p.pathId = -1;
-//                    p.startPath = false;
-//                    paths.add(p);
                 }
             } catch (JSONException | IOException e) {
                 e.printStackTrace();

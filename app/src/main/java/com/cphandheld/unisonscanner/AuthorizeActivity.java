@@ -1,10 +1,10 @@
 package com.cphandheld.unisonscanner;
 
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,11 +13,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,14 +27,10 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-import com.symbol.emdk.EMDKManager;
-import com.symbol.emdk.EMDKResults;
-import com.symbol.emdk.ProfileConfig;
-import com.symbol.emdk.ProfileManager;
-
-public class LoginActivity extends ActionBarActivity{
+/**
+ * Created by titan on 3/22/16.
+ */
+public class AuthorizeActivity extends ActionBarActivity {
 
     public static final String PREFS_FILE = "SharedPrefs";
     ImageView imageButton1;
@@ -53,52 +48,46 @@ public class LoginActivity extends ActionBarActivity{
     ImageView imageEntry3;
     ImageView imageEntry4;
     ImageView imageBack;
-    ImageView imageLogo;
-    TextView textOrgName;
 
     ProgressDialog mProgressDialog;
 
     int organizationId = -1;
-    String organizationName = "";
-    int clickCount = 0;
-    boolean isAdmin = false;
-    private ProfileManager profileManager = null;
-    private EMDKManager emdkManager = null;
-    ProfileConfig profileConfig = null;
+    int ticketId = 0;
+    int statusId = 0;
+    int userId = 0;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_authorize);
 
-        Intent i = new Intent();
+        Intent intent = getIntent();
+        String action = intent.getStringExtra("action");
 
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
         organizationId = settings.getInt("orgId", -1);
-        organizationName = settings.getString("orgName", "");
-        Utilities.SetAppUrl(settings.getString("appUrl", ""));
 
-        if (!organizationName.equals(""))
-        {
-            textOrgName = (TextView) findViewById(R.id.textOrgName);
-            textOrgName.setText(organizationName.toUpperCase());
-        }
+        ticketId = Utilities.currentContext.vehicleTicket.ticketId;
+        if(action.equals("Start"))
+            statusId = 1;
+        else if(action.equals("Complete"))
+            statusId = 3;
+
+        mProgressDialog = new ProgressDialog(AuthorizeActivity.this);
+        mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("Hold on a sec...");
 
         imageEntry1 = (ImageView) findViewById(R.id.entry1);
         imageEntry2 = (ImageView) findViewById(R.id.entry2);
         imageEntry3 = (ImageView) findViewById(R.id.entry3);
         imageEntry4 = (ImageView) findViewById(R.id.entry4);
 
-        mProgressDialog = new ProgressDialog(LoginActivity.this);
-        mProgressDialog.setIndeterminate(false);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setTitle("Verifying your credentials...");
-        mProgressDialog.setMessage("Hold on a sec...");
-
         setClickEvents();
     }
+
 
     protected void setClickEvents()
     {
@@ -189,14 +178,6 @@ public class LoginActivity extends ActionBarActivity{
                 deleteEntry();
             }
         });
-
-        imageLogo = (ImageView) findViewById(R.id.logo);
-        imageLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logoClick();
-            }
-        });
     }
     protected void setEntry(String tag) {
         if (imageEntry1.getTag() == null) {
@@ -219,64 +200,84 @@ public class LoginActivity extends ActionBarActivity{
     protected void deleteEntry() {
         if (imageEntry4.getTag() != null) {
             imageEntry4.setTag(null);
-            imageEntry4.setImageResource(R.drawable.no_pin);
+            imageEntry4.setImageResource(R.drawable.btn_no_pin);
         } else if (imageEntry3.getTag() != null) {
             imageEntry3.setTag(null);
-            imageEntry3.setImageResource(R.drawable.no_pin);
+            imageEntry3.setImageResource(R.drawable.btn_no_pin);
         } else if (imageEntry2.getTag() != null) {
             imageEntry2.setTag(null);
-            imageEntry2.setImageResource(R.drawable.no_pin);
+            imageEntry2.setImageResource(R.drawable.btn_no_pin);
         } else if (imageEntry1.getTag() != null) {
             imageEntry1.setTag(null);
-            imageEntry1.setImageResource(R.drawable.no_pin);
+            imageEntry1.setImageResource(R.drawable.btn_no_pin);
         }
     }
 
-    protected void logoClick()
+    private class StartStopTask extends AsyncTask<String, Void, Void>
     {
-        clickCount++;
-
-        if (clickCount == 7)
-        {
-            isAdmin = true;
-
-            Toast toast = Toast.makeText(getApplicationContext(), "Admin mode", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.BOTTOM, 0, 75);
-            toast.show();
-
-            imageButton1.setImageResource(R.drawable.button1_selector_admin);
-            imageButton2.setImageResource(R.drawable.button2_selector_admin);
-            imageButton3.setImageResource(R.drawable.button3_selector_admin);
-            imageButton4.setImageResource(R.drawable.button4_selector_admin);
-            imageButton5.setImageResource(R.drawable.button5_selector_admin);
-            imageButton6.setImageResource(R.drawable.button6_selector_admin);
-            imageButton7.setImageResource(R.drawable.button7_selector_admin);
-            imageButton8.setImageResource(R.drawable.button8_selector_admin);
-            imageButton9.setImageResource(R.drawable.button9_selector_admin);
-            imageButton0.setImageResource(R.drawable.button0_selector_admin);
-            imageBack.setImageResource(R.drawable.delete_selector_admin);
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog.setTitle("Posting data...");
+            mProgressDialog.show();
         }
-        else if (clickCount == 14)
+
+        @Override
+        protected Void doInBackground(String... params) {
+            if (StartStopPost())
+            {
+                finishAffinity();
+                return null;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            mProgressDialog.dismiss();
+        }
+
+        private boolean StartStopPost()
         {
-            isAdmin = false;
+            URL url;
+            HttpURLConnection connection;
+            OutputStreamWriter request;
+            JSONObject postData;
 
-            Toast toast = Toast.makeText(getApplicationContext(), "Exit Admin mode", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.BOTTOM, 0, 75);
-            toast.show();
+            try
+            {
+                postData = new JSONObject();
+                postData.accumulate("TicketId", ticketId);
+                postData.accumulate("StatusId", statusId);
+                postData.accumulate("UserId", userId);
 
-            imageButton1.setImageResource(R.drawable.button1_selector);
-            imageButton2.setImageResource(R.drawable.button2_selector);
-            imageButton3.setImageResource(R.drawable.button3_selector);
-            imageButton4.setImageResource(R.drawable.button4_selector);
-            imageButton5.setImageResource(R.drawable.button5_selector);
-            imageButton6.setImageResource(R.drawable.button6_selector);
-            imageButton7.setImageResource(R.drawable.button7_selector);
-            imageButton8.setImageResource(R.drawable.button8_selector);
-            imageButton9.setImageResource(R.drawable.button9_selector);
-            imageButton0.setImageResource(R.drawable.button0_selector);
-            imageBack.setImageResource(R.drawable.delete_selector);
+                url = new URL(Utilities.AppURL + Utilities.StartStopURL);
 
-            clickCount = 0;
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setFixedLengthStreamingMode(postData.toString().length());
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("Content-type", "application/json");
+                connection.setRequestMethod("POST");
+
+                request = new OutputStreamWriter(connection.getOutputStream());
+                request.write(postData.toString());
+                request.flush();
+                request.close();
+
+                int code = connection.getResponseCode();
+
+                if (connection.getResponseCode() == 204)
+                {
+                    return true;
+                } else
+                    return false;
+            } catch (JSONException | IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            return false;
         }
     }
 
@@ -284,6 +285,7 @@ public class LoginActivity extends ActionBarActivity{
 
         @Override
         protected void onPreExecute() {
+            mProgressDialog.setTitle("Verifying your credentials...");
             mProgressDialog.show();
         }
 
@@ -292,18 +294,7 @@ public class LoginActivity extends ActionBarActivity{
             Utilities.currentUser = null;
             if (LoginPost(Integer.parseInt(params[0]), params[1]))
             {
-                if (isAdmin)
-                {
-                    Intent i = new Intent(LoginActivity.this, OrganizationActivity.class);
-                    startActivity(i);
                     return null;
-                }
-                else
-                {
-                    Intent i = new Intent(LoginActivity.this, LocationActivity.class);
-                    startActivity(i);
-                    return null;
-                }
             }
             return null;
         }
@@ -320,7 +311,7 @@ public class LoginActivity extends ActionBarActivity{
                 imageEntry3.setImageResource(R.drawable.pin_x);
                 imageEntry4.setImageResource(R.drawable.pin_x);
 
-                final Vibrator vibe = (Vibrator) LoginActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+                final Vibrator vibe = (Vibrator) AuthorizeActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
                 vibe.vibrate(200);
 
 
@@ -344,10 +335,10 @@ public class LoginActivity extends ActionBarActivity{
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        imageEntry1.setImageResource(R.drawable.no_pin);
-                        imageEntry2.setImageResource(R.drawable.no_pin);
-                        imageEntry3.setImageResource(R.drawable.no_pin);
-                        imageEntry4.setImageResource(R.drawable.no_pin);
+                        imageEntry1.setImageResource(R.drawable.btn_no_pin);
+                        imageEntry2.setImageResource(R.drawable.btn_no_pin);
+                        imageEntry3.setImageResource(R.drawable.btn_no_pin);
+                        imageEntry4.setImageResource(R.drawable.btn_no_pin);
                         imageEntry1.setTag(null);
                         imageEntry2.setTag(null);
                         imageEntry3.setTag(null);
@@ -355,22 +346,15 @@ public class LoginActivity extends ActionBarActivity{
                     }
                 }, 1500);
             }
+            else
+                new StartStopTask().execute();
+
+
             mProgressDialog.dismiss();
         }
 
         private boolean LoginPost(int organizationId, String pin) {
-            if (isAdmin)
-            {
-                if (pin.equals(getString(R.string.admin_password)))
-                {
-                    Utilities.currentUser = new User();
-                    return true;
-                }
-                else
-                    return false;
-            }
-            else
-            {
+
                 URL url;
                 HttpURLConnection connection;
                 OutputStreamWriter request;
@@ -414,6 +398,8 @@ public class LoginActivity extends ActionBarActivity{
                         Utilities.currentContext = new CurrentContext();
                         Utilities.currentContext.organizationId = organizationId;
 
+                        userId = Utilities.currentUser.userId;
+
                         return true;
                     } else
                         return false;
@@ -421,7 +407,6 @@ public class LoginActivity extends ActionBarActivity{
                 {
                     e.printStackTrace();
                 }
-            }
 
             return false;
         }
