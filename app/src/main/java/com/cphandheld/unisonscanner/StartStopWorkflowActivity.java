@@ -179,7 +179,7 @@ public class StartStopWorkflowActivity extends HeaderActivity implements EMDKMan
             textMake.setText(Utilities.currentContext.vehicle.make);
             textModel.setText(Utilities.currentContext.vehicle.model);
             String color = Utilities.currentContext.vehicle.color;
-            if(color.equals("null"))
+            if(color == null || color.equals("null"))
                 textColor.setText("Color Not Set");
             else
                 textColor.setText(color);

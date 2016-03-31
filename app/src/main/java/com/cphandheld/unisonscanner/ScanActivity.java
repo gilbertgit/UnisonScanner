@@ -28,6 +28,10 @@ import com.symbol.emdk.EMDKResults;
 import com.symbol.emdk.barcode.BarcodeManager;
 import com.symbol.emdk.barcode.Scanner;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,12 +41,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class ScanActivity extends HeaderActivity implements EMDKListener
-{
+public class ScanActivity extends HeaderActivity implements EMDKListener {
 
     TextView textVIN;
     TextView textStatus;
     ImageView imageStatus;
+    String errorMessage;
+    boolean validVin = true;
+    boolean locationMatch = true;
+    boolean procError = false;
 
     private ProgressDialog mProgressDialog;
 
@@ -99,32 +106,29 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
                 String source = intent.getStringExtra("com.motorolasolutions.emdk.datawedge.source");
 
                 //Check if the data has come from the barcode scanner
-                if(source.equalsIgnoreCase("scanner")){
+                if (source.equalsIgnoreCase("scanner")) {
                     //Get the data from the intent
                     String data = intent.getStringExtra("com.motorolasolutions.emdk.datawedge.data_string");
 
                     //Check that we have received data
-                    if(data != null && data.length() > 0){
+                    if (data != null && data.length() > 0) {
                         String barcode = CheckVinSpecialCases(data);
 
-                        if (barcode.length() != 17)
-                        {
+                        if (barcode.length() != 17) {
                             Toast.makeText(ScanActivity.this, "Scanned VIN is not 17 characters", Toast.LENGTH_SHORT).show();
 
                             textVIN.setText("- - - - - - - - - - - - - - - - -"); //reset to blank VIN, just in case
                             imageStatus.setImageResource(R.drawable.x);
                             imageStatus.setVisibility(View.VISIBLE);
-                        }
-                        else
-                        {
-                            textVIN.setText(data);
+                        } else {
+                            textVIN.setText(barcode);
                             imageStatus.setImageResource(R.drawable.check);
                             imageStatus.setVisibility(View.VISIBLE);
                             textStatus.setText("");
 
                             Utilities.currentContext.vehicle = new Vehicle();
-                            Utilities.currentContext.vehicle.vin = data;
-                            new VerifyVehicleTask().execute(data);
+                            Utilities.currentContext.vehicle.vin = barcode;
+                            new VerifyVehicleTask().execute(barcode);
                         }
                     }
                 }
@@ -160,8 +164,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         }
     }
 
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         onClosed();
 
         Intent i = new Intent(ScanActivity.this, LocationActivity.class);
@@ -171,18 +174,14 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i(TAG, "onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1)
-        {
-            if (resultCode == RESULT_OK)
-            {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
                 Boolean backPress = data.getBooleanExtra("back", false);
 
-                if(backPress)
-                {
+                if (backPress) {
                     textVIN.setText(R.string.empty_vin);
                     imageStatus.setVisibility(View.INVISIBLE);
                     onOpened(emdkManager);
@@ -193,12 +192,12 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
 
     @Override
     public void onOpened(EMDKManager emdkManager) {
-       this.emdkManager = emdkManager;
+        this.emdkManager = emdkManager;
 
 
         mProfileManager = (ProfileManager) emdkManager.getInstance(EMDKManager.FEATURE_TYPE.PROFILE);
 
-        if(mProfileManager != null) {
+        if (mProfileManager != null) {
             try {
 
                 String[] modifyData = new String[1];
@@ -237,14 +236,12 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         super.onStop();
     }
 
-    private String CheckVinSpecialCases(String vin)
-    {
+    private String CheckVinSpecialCases(String vin) {
         String formattedVIN = vin;
 
-        if (vin.length() > 17)
-        {
-            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0,1).equals(" ")) // Ford, Mazda, Honda Issues
-                formattedVIN = vin.substring(1, 17);
+        if (vin.length() > 17) {
+            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0, 1).equals(" ")) // Ford, Mazda, Honda Issues
+                formattedVIN = vin.substring(1, 18);
             else if (vin.length() == 18)
                 formattedVIN = vin.substring(0, 17); // Lexus Issue
         }
@@ -262,18 +259,20 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         @Override
         protected Void doInBackground(String... params) {
 
-            if (VerifyVehicle((params[0])))
-            {
-                onClosed();
-                Intent i = new Intent(ScanActivity.this, BinActivity.class);
-                startActivity(i);
+            if (VerifyVehicle((params[0]))) {
+                if (locationMatch) {
+                    onClosed();
+                    Intent i = new Intent(ScanActivity.this, BinActivity.class);
+                    startActivity(i);
+                }
                 return null;
-            }
-            else
-            {
-                onClosed();
-                Intent i = new Intent(ScanActivity.this, VehicleActivity.class);
-                startActivity(i);
+            } else {
+                if (validVin && !procError) {
+                    onClosed();
+                    Intent i = new Intent(ScanActivity.this, VehicleActivity.class);
+                    startActivity(i);
+                }
+
                 return null;
             }
         }
@@ -281,49 +280,91 @@ public class ScanActivity extends HeaderActivity implements EMDKListener
         @Override
         protected void onPostExecute(Void unused) {
             mProgressDialog.dismiss();
+            if(!procError) {
+                if (!validVin) {
+                    Toast.makeText(ScanActivity.this, "This is not a valid VIN.", Toast.LENGTH_LONG).show();
+                    imageStatus.setImageResource(R.drawable.x);
+                    imageStatus.setVisibility(View.VISIBLE);
+                }
+                if (!locationMatch) {
+                    Toast.makeText(ScanActivity.this, "Vehicle is not in this location.", Toast.LENGTH_LONG).show();
+                    imageStatus.setImageResource(R.drawable.x);
+                    imageStatus.setVisibility(View.VISIBLE);
+                }
+            }
+            else
+            {
+                Toast.makeText(ScanActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                imageStatus.setImageResource(R.drawable.x);
+                imageStatus.setVisibility(View.VISIBLE);
+            }
         }
 
         private boolean VerifyVehicle(String vin) {
-                URL url;
-                HttpURLConnection connection;
-                JSONObject responseData;
-                InputStreamReader isr;
-                String result;
+            URL url;
+            HttpURLConnection connection;
+            JSONObject responseData;
+            InputStreamReader isr;
+            String result;
+            validVin = true;
+            procError = false;
 
-                try
-                {
-                    String address = Utilities.AppURL + Utilities.VehicleInfoURL + vin;
-                    url = new URL(address);
-                    connection = (HttpURLConnection) url.openConnection();
-                    isr = new InputStreamReader(connection.getInputStream());
+            try {
+                String address = Utilities.AppURL + Utilities.VehicleInfoURL + vin;
+                url = new URL(address);
 
-                    if (connection.getResponseCode() == 200)
-                    {
-                        result = Utilities.StreamToString(isr);
-                        responseData = new JSONObject(result);
 
-                        Boolean success = responseData.getBoolean("Success");
+                HttpClient client = new DefaultHttpClient();
+                HttpGet request = new HttpGet(address);
+                HttpResponse response = client.execute(request);
+                int code = response.getStatusLine().getStatusCode();
 
-                        if (success)
-                        {
-                            JSONObject veh = responseData.getJSONObject("Vehicle");
-                            Utilities.currentContext.vehicle.year = veh.getInt("Year");
-                            Utilities.currentContext.vehicle.make = veh.getString("Make");
-                            Utilities.currentContext.vehicle.model = veh.getString("Model");
-                            Utilities.currentContext.vehicle.color = veh.getString("Color");
 
-                            Utilities.currentContext.binId = responseData.getInt("BinId");
-                            return true;
-                        }
-                        else
-                            return false;
-                    }
-                    else
-                        return false;
-                } catch (JSONException | IOException e)
-                {
-                    e.printStackTrace();
+//                    connection = (HttpURLConnection) url.openConnection();
+//                    int status = connection.getResponseCode();
+                if (code == 500) {
+                    errorMessage = response.getStatusLine().getReasonPhrase();
+                    isr = new InputStreamReader(response.getEntity().getContent());
+                    result = Utilities.StreamToString(isr);
+                    responseData = new JSONObject(result);
+
+                    errorMessage = responseData.getString("Message");
+                    procError = true;
+                    return false;
+                } else {
+                    isr = new InputStreamReader(response.getEntity().getContent());
                 }
+                if (code == 200) {
+                    result = Utilities.StreamToString(isr);
+                    responseData = new JSONObject(result);
+
+                    Boolean success = responseData.getBoolean("Success");
+
+                    if (success) {
+                        JSONObject veh = responseData.getJSONObject("Vehicle");
+                        Utilities.currentContext.vehicle.year = veh.getInt("Year");
+                        Utilities.currentContext.vehicle.make = veh.getString("Make");
+                        Utilities.currentContext.vehicle.model = veh.getString("Model");
+                        Utilities.currentContext.vehicle.color = veh.getString("Color");
+                        Utilities.currentContext.binId = responseData.getInt("BinId");
+
+                        int loc = responseData.getInt("LocationId");
+
+                        if (loc != 0 && Utilities.currentContext.locationId != loc)
+                            locationMatch = false;
+                        else
+                            locationMatch = true;
+
+                        return true;
+                    } else {
+                        if (responseData.getString("Message").equals("Invalid VIN"))
+                            validVin = false;
+                        return false;
+                    }
+                }
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
 
             return false;
         }

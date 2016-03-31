@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,8 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
+import com.daimajia.androidanimations.library.*;
+import com.daimajia.androidanimations.library.BuildConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,8 +29,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.symbol.emdk.EMDKManager;
 import com.symbol.emdk.EMDKResults;
 import com.symbol.emdk.ProfileConfig;
@@ -55,6 +54,7 @@ public class LoginActivity extends ActionBarActivity{
     ImageView imageBack;
     ImageView imageLogo;
     TextView textOrgName;
+    TextView textVersion;
 
     ProgressDialog mProgressDialog;
 
@@ -79,6 +79,10 @@ public class LoginActivity extends ActionBarActivity{
         organizationId = settings.getInt("orgId", -1);
         organizationName = settings.getString("orgName", "");
         Utilities.SetAppUrl(settings.getString("appUrl", ""));
+
+        String versionName = com.cphandheld.unisonscanner.BuildConfig.VERSION_NAME;
+        textVersion = (TextView) findViewById(R.id.textVersion);
+        textVersion.setText(versionName);
 
         if (!organizationName.equals(""))
         {

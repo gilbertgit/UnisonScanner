@@ -66,7 +66,7 @@ public class Utilities {
         if (vin.length() > 17)
         {
             if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0,1).equals(" ")) //                        Ford, Mazda, Honda Issues
-                formattedVIN = vin.substring(1, 17);
+                formattedVIN = vin.substring(1, 18);
             else if (vin.length() == 18)
                 formattedVIN = vin.substring(0, 17); // Lexus Issue
         }

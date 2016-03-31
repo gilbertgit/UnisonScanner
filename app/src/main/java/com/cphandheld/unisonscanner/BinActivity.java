@@ -2,6 +2,7 @@ package com.cphandheld.unisonscanner;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.preference.PreferenceActivity;
@@ -162,6 +163,24 @@ public class BinActivity extends HeaderActivity {
 
         @Override
         protected void onPostExecute(Void unused) {
+
+            //Cursor c = dbHelper.getBins();
+
+//            bins = new ArrayList(responseData.length());
+//
+//            for (int i = 0; i < responseData.length(); i++) {
+//                JSONObject temp = responseData.getJSONObject(i);
+//                String name  = temp.getString("BinName");
+//                int binId = temp.getInt("BinId");
+//                boolean selected = false;
+//                if(Utilities.currentContext.binId != 0) {
+//                    if (binId == Utilities.currentContext.binId) {
+//                        selected = true;
+//                    }
+//                }
+//                Bin bin = new Bin(name, binId, selected);
+//                bins.add(bin);
+
             if (bins != null && bins.size() > 0) {
                 AdapterBin ab = new AdapterBin(activity, 0, bins);
                 listBins.setAdapter(ab);
@@ -171,7 +190,7 @@ public class BinActivity extends HeaderActivity {
             }
         }
 
-        private ArrayList getBins(int locationId) {
+        private Void getBins(int locationId) {
             HttpURLConnection connection;
             InputStreamReader isr;
             URL url;
@@ -191,26 +210,21 @@ public class BinActivity extends HeaderActivity {
 
                     bins = new ArrayList(responseData.length());
 
-                    for (int i = 0; i < responseData.length(); i++) {
-                        JSONObject temp = responseData.getJSONObject(i);
-                        String name  = temp.getString("BinName");
-                        int binId = temp.getInt("BinId");
-                        boolean selected = false;
-                        if(Utilities.currentContext.binId != 0) {
-                            if (binId == Utilities.currentContext.binId) {
-                                selected = true;
-                            }
-                        }
+            for (int i = 0; i < responseData.length(); i++) {
+                JSONObject temp = responseData.getJSONObject(i);
+                String name  = temp.getString("BinName");
+                int binId = temp.getInt("BinId");
+                boolean selected = false;
+                if(Utilities.currentContext.binId != 0) {
+                    if (binId == Utilities.currentContext.binId) {
+                        selected = true;
+                    }
+                }
+                Bin bin = new Bin(name, binId, selected);
+                bins.add(bin);
 
                         dbHelper.insertBin(binId, name);
-                        Bin bin = new Bin(name, binId, selected);
-
-
-                        bins.add(bin);
-
                     }
-
-                    return bins;
                 }
             } catch (JSONException | IOException e) {
                 e.printStackTrace();

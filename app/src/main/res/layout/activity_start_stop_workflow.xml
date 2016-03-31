@@ -126,6 +126,7 @@
         android:layout_marginLeft="130dp"
         />
 <LinearLayout
+    android:id="@+id/layoutBin"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@+id/textColor2"
@@ -161,8 +162,8 @@
         android:id="@+id/layoutService"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textColor2"
-        android:layout_marginTop="50dp"
+        android:layout_below="@+id/layoutBin"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:paddingBottom="5dp"
