@@ -37,6 +37,7 @@ public class NotesActivity extends HeaderActivity {
     String errorMessage;
 
     private ProgressDialog mProgressDialog;
+    private DBHelper dbHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,8 +45,11 @@ public class NotesActivity extends HeaderActivity {
         setContentView(R.layout.activity_notes);
         setHeader(R.color.colorNotesHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, -1, Utilities.currentContext.pathName.toUpperCase());
 
+        dbHelper = new DBHelper(NotesActivity.this);
+        dbHelper.getWritableDatabase();
+
         textVIN = (TextView) findViewById(R.id.textVIN);
-        textVIN.setText(Utilities.currentContext.vehicle.vin);
+        textVIN.setText(Utilities.currentContext.vehicle.VIN);
 
         textBin = (TextView) findViewById(R.id.textBin);
         textBin.setText(Utilities.currentContext.binName.toUpperCase());
@@ -61,7 +65,13 @@ public class NotesActivity extends HeaderActivity {
             @Override
             public void onClick(View view) {
                 Utilities.currentContext.notes = textNotes.getText().toString();
-                new CheckIn().execute();
+                StoreVehicleCheckIn();
+
+                Intent i = new Intent(NotesActivity.this, ScanActivity.class);
+                // We want to finish() the activities after ScanActivity
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+               // new CheckIn().execute();
             }
         });
 
@@ -94,6 +104,24 @@ public class NotesActivity extends HeaderActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void StoreVehicleCheckIn()
+    {
+        CheckInPost cip = new CheckInPost();
+        cip.Action = "CHECKIN";
+        cip.LocationId = Utilities.currentContext.locationId;
+        cip.BinId = Utilities.currentContext.binId;
+        cip.PathId = Utilities.currentContext.pathId;
+        cip.Notes = Utilities.currentContext.notes;
+        cip.UserId = Utilities.currentUser.userId;
+        cip.StartPath = Utilities.currentContext.startPath;
+        cip.Vehicle = Utilities.currentContext.vehicle;
+
+        Gson gson = new Gson();
+        String json = gson.toJson(cip);
+
+        dbHelper.insertVehicleEntry(json);
     }
 
     public void onBackPressed() {
@@ -144,13 +172,14 @@ public class NotesActivity extends HeaderActivity {
 
             try {
                 CheckInPost cip = new CheckInPost();
-                cip.locationId = Utilities.currentContext.locationId;
-                cip.binId = Utilities.currentContext.binId;
-                cip.pathId = Utilities.currentContext.pathId;
-                cip.notes = Utilities.currentContext.notes;
-                cip.userId = Utilities.currentUser.userId;
-                cip.startPath = Utilities.currentContext.startPath;
-                cip.vehicle = Utilities.currentContext.vehicle;
+                cip.Action = "CHECKIN";
+                cip.LocationId = Utilities.currentContext.locationId;
+                cip.BinId = Utilities.currentContext.binId;
+                cip.PathId = Utilities.currentContext.pathId;
+                cip.Notes = Utilities.currentContext.notes;
+                cip.UserId = Utilities.currentUser.userId;
+                cip.StartPath = Utilities.currentContext.startPath;
+                cip.Vehicle = Utilities.currentContext.vehicle;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -192,18 +221,17 @@ public class NotesActivity extends HeaderActivity {
     }
 
     public class CheckInPost implements Serializable {
-        int locationId;
-        int binId;
-        int pathId;
-        String notes;
-        int userId;
-        boolean startPath;
-        Vehicle vehicle;
+        String Action;
+        int LocationId;
+        int BinId;
+        int PathId;
+        String Notes;
+        int UserId;
+        boolean StartPath;
+        Vehicle Vehicle;
 
 
         CheckInPost() {
         }
-
-
     }
 }

@@ -53,8 +53,8 @@ public class BinActivity extends HeaderActivity {
             origin = intent.getStringExtra("origin");
 
         textVIN = (TextView) findViewById(R.id.textVIN);
-        textVIN.setText(Utilities.currentContext.vehicle.vin);
-        ArrayAdapter<Bin> aa = new ArrayAdapter<Bin>(this,R.layout.generic_list);
+        textVIN.setText(Utilities.currentContext.vehicle.VIN);
+        ArrayAdapter<Bin> aa = new ArrayAdapter<Bin>(this, R.layout.generic_list);
 
         listBins = (ListView) findViewById(R.id.listBins);
         listBins.setAdapter(aa);
@@ -76,7 +76,15 @@ public class BinActivity extends HeaderActivity {
             }
         });
 
-        new loadBins(this).execute(Integer.toString(Utilities.currentContext.locationId));
+        if(Utilities.isNetworkAvailable(BinActivity.this)) {
+            new loadBins(this).execute(Integer.toString(Utilities.currentContext.locationId));
+        }
+        else
+        {
+            GetBinsDB();
+            //Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,13 +117,12 @@ public class BinActivity extends HeaderActivity {
         b.putString("back", "yes");
         Intent i;
 
-        if(origin != null) {
+        if (origin != null) {
             if (origin.equals("vehicle_activity"))
                 i = new Intent(BinActivity.this, VehicleActivity.class);
             else
                 i = new Intent(BinActivity.this, ScanActivity.class);
-        }
-        else
+        } else
             i = new Intent(BinActivity.this, ScanActivity.class);
 
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -137,6 +144,39 @@ public class BinActivity extends HeaderActivity {
                     listBins.setAdapter(ab);
                 }
             }
+        }
+    }
+
+    public void GetBinsDB()
+    {
+        Cursor c = dbHelper.getBins();
+        bins = new ArrayList(c.getCount());
+
+        if (c.moveToFirst()) {
+            do {
+                int nameIndex = c.getColumnIndex("name");
+                String name = c.getString(nameIndex);
+
+                int binIdIndex = c.getColumnIndex("binId");
+                int binId = c.getInt(binIdIndex);
+                boolean selected = false;
+                if (Utilities.currentContext.binId != 0) {
+                    if (binId == Utilities.currentContext.binId) {
+                        selected = true;
+                    }
+                }
+                Bin bin = new Bin(name, binId, selected);
+                bins.add(bin);
+            } while (c.moveToNext());
+        }
+        c.close();
+
+        if (bins != null && bins.size() > 0) {
+            AdapterBin ab = new AdapterBin(BinActivity.this, 0, bins);
+            listBins.setAdapter(ab);
+
+            if (Utilities.currentContext.binId != 0)
+                Toast.makeText(getApplicationContext(), "Vehicle is currently in a bin.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -164,30 +204,7 @@ public class BinActivity extends HeaderActivity {
         @Override
         protected void onPostExecute(Void unused) {
 
-            //Cursor c = dbHelper.getBins();
-
-//            bins = new ArrayList(responseData.length());
-//
-//            for (int i = 0; i < responseData.length(); i++) {
-//                JSONObject temp = responseData.getJSONObject(i);
-//                String name  = temp.getString("BinName");
-//                int binId = temp.getInt("BinId");
-//                boolean selected = false;
-//                if(Utilities.currentContext.binId != 0) {
-//                    if (binId == Utilities.currentContext.binId) {
-//                        selected = true;
-//                    }
-//                }
-//                Bin bin = new Bin(name, binId, selected);
-//                bins.add(bin);
-
-            if (bins != null && bins.size() > 0) {
-                AdapterBin ab = new AdapterBin(activity, 0, bins);
-                listBins.setAdapter(ab);
-
-                if(Utilities.currentContext.binId != 0)
-                    Toast.makeText(getApplicationContext(), "Vehicle is currently in a bin.", Toast.LENGTH_LONG).show();
-            }
+            GetBinsDB();
         }
 
         private Void getBins(int locationId) {
@@ -210,19 +227,12 @@ public class BinActivity extends HeaderActivity {
 
                     bins = new ArrayList(responseData.length());
 
-            for (int i = 0; i < responseData.length(); i++) {
-                JSONObject temp = responseData.getJSONObject(i);
-                String name  = temp.getString("BinName");
-                int binId = temp.getInt("BinId");
-                boolean selected = false;
-                if(Utilities.currentContext.binId != 0) {
-                    if (binId == Utilities.currentContext.binId) {
-                        selected = true;
-                    }
-                }
-                Bin bin = new Bin(name, binId, selected);
-                bins.add(bin);
+                    for (int i = 0; i < responseData.length(); i++) {
+                        JSONObject temp = responseData.getJSONObject(i);
+                        String name = temp.getString("BinName");
+                        int binId = temp.getInt("BinId");
 
+                        // insert into database table Bin
                         dbHelper.insertBin(binId, name);
                     }
                 }

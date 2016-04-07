@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,13 +29,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import com.symbol.emdk.EMDKManager;
 import com.symbol.emdk.EMDKResults;
 import com.symbol.emdk.ProfileConfig;
 import com.symbol.emdk.ProfileManager;
 
-public class LoginActivity extends ActionBarActivity{
+public class LoginActivity extends ActionBarActivity {
 
     public static final String PREFS_FILE = "SharedPrefs";
     ImageView imageButton1;
@@ -65,6 +67,7 @@ public class LoginActivity extends ActionBarActivity{
     private ProfileManager profileManager = null;
     private EMDKManager emdkManager = null;
     ProfileConfig profileConfig = null;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,8 @@ public class LoginActivity extends ActionBarActivity{
 
         Intent i = new Intent();
 
+        dbHelper = new DBHelper(LoginActivity.this);
+        dbHelper.getWritableDatabase();
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
@@ -84,8 +89,7 @@ public class LoginActivity extends ActionBarActivity{
         textVersion = (TextView) findViewById(R.id.textVersion);
         textVersion.setText(versionName);
 
-        if (!organizationName.equals(""))
-        {
+        if (!organizationName.equals("")) {
             textOrgName = (TextView) findViewById(R.id.textOrgName);
             textOrgName.setText(organizationName.toUpperCase());
         }
@@ -102,10 +106,12 @@ public class LoginActivity extends ActionBarActivity{
         mProgressDialog.setMessage("Hold on a sec...");
 
         setClickEvents();
+
+        Intent serviceIntent = new Intent(LoginActivity.this, CheckInService.class);
+        getApplicationContext().startService(serviceIntent);
     }
 
-    protected void setClickEvents()
-    {
+    protected void setClickEvents() {
         imageButton1 = (ImageView) findViewById(R.id.button1);
         imageButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,6 +208,7 @@ public class LoginActivity extends ActionBarActivity{
             }
         });
     }
+
     protected void setEntry(String tag) {
         if (imageEntry1.getTag() == null) {
             imageEntry1.setTag(tag);
@@ -215,9 +222,59 @@ public class LoginActivity extends ActionBarActivity{
         } else if (imageEntry4.getTag() == null) {
             imageEntry4.setTag(tag);
             imageEntry4.setImageResource(R.drawable.yes_pin);
-            String pin = (String)imageEntry1.getTag() + (String)imageEntry2.getTag() + (String)imageEntry3.getTag() + tag;
-            new LoginTask().execute(Integer.toString(organizationId), pin);
+            String pin = (String) imageEntry1.getTag() + (String) imageEntry2.getTag() + (String) imageEntry3.getTag() + tag;
+
+            if (isAdmin) {
+                if (pin.equals(getString(R.string.admin_password))) {
+                    Utilities.currentUser = new User();
+                    Intent i = new Intent(LoginActivity.this, OrganizationActivity.class);
+                    startActivity(i);
+                    return;
+                }
+                else
+                {
+                    YoyoPin();
+                    return;
+                }
+            }
+
+            if (Utilities.isNetworkAvailable(LoginActivity.this)) {
+                // Authenticate the user
+                new LoginTask().execute(Integer.toString(organizationId), pin);
+            } else {
+                // Local Authentication
+                if (dbHelper.isUserStored(pin)) {
+                    getStoredUser(pin);
+                    Intent i = new Intent(LoginActivity.this, LocationActivity.class);
+                    startActivity(i);
+                } else {
+                    YoyoPin();
+                    Toast.makeText(getApplicationContext(), "User not stored.", Toast.LENGTH_LONG).show();
+                }
+            }
         }
+    }
+
+    private void getStoredUser(String pin) {
+        Cursor c = dbHelper.getUserByPin(Integer.parseInt(pin));
+
+        if (c.moveToFirst()) {
+            do {
+                int nameIndex = c.getColumnIndex("name");
+                String name = c.getString(nameIndex);
+
+                int userIdIndex = c.getColumnIndex("userId");
+                int userId = c.getInt(userIdIndex);
+
+                Utilities.currentUser = new User();
+                Utilities.currentUser.organizationId = organizationId;
+                Utilities.currentUser.userId = userId;
+                Utilities.currentUser.name = name;
+
+
+            } while (c.moveToNext());
+        }
+        c.close();
     }
 
     protected void deleteEntry() {
@@ -236,12 +293,10 @@ public class LoginActivity extends ActionBarActivity{
         }
     }
 
-    protected void logoClick()
-    {
+    protected void logoClick() {
         clickCount++;
 
-        if (clickCount == 7)
-        {
+        if (clickCount == 7) {
             isAdmin = true;
 
             Toast toast = Toast.makeText(getApplicationContext(), "Admin mode", Toast.LENGTH_SHORT);
@@ -259,9 +314,7 @@ public class LoginActivity extends ActionBarActivity{
             imageButton9.setImageResource(R.drawable.button9_selector_admin);
             imageButton0.setImageResource(R.drawable.button0_selector_admin);
             imageBack.setImageResource(R.drawable.delete_selector_admin);
-        }
-        else if (clickCount == 14)
-        {
+        } else if (clickCount == 14) {
             isAdmin = false;
 
             Toast toast = Toast.makeText(getApplicationContext(), "Exit Admin mode", Toast.LENGTH_SHORT);
@@ -284,6 +337,48 @@ public class LoginActivity extends ActionBarActivity{
         }
     }
 
+    private void YoyoPin() {
+        imageEntry1.setImageResource(R.drawable.pin_x);
+        imageEntry2.setImageResource(R.drawable.pin_x);
+        imageEntry3.setImageResource(R.drawable.pin_x);
+        imageEntry4.setImageResource(R.drawable.pin_x);
+
+        final Vibrator vibe = (Vibrator) LoginActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(200);
+
+
+        YoYo.with(Techniques.Shake)
+                .duration(1000)
+                .playOn(imageEntry1);
+
+        YoYo.with(Techniques.Shake)
+                .duration(1000)
+                .playOn(imageEntry2);
+
+        YoYo.with(Techniques.Shake)
+                .duration(1000)
+                .playOn(imageEntry3);
+
+        YoYo.with(Techniques.Shake)
+                .duration(1000)
+                .playOn(imageEntry4);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                imageEntry1.setImageResource(R.drawable.no_pin);
+                imageEntry2.setImageResource(R.drawable.no_pin);
+                imageEntry3.setImageResource(R.drawable.no_pin);
+                imageEntry4.setImageResource(R.drawable.no_pin);
+                imageEntry1.setTag(null);
+                imageEntry2.setTag(null);
+                imageEntry3.setTag(null);
+                imageEntry4.setTag(null);
+            }
+        }, 1500);
+    }
+
     private class LoginTask extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -294,20 +389,12 @@ public class LoginActivity extends ActionBarActivity{
         @Override
         protected Void doInBackground(String... params) {
             Utilities.currentUser = null;
-            if (LoginPost(Integer.parseInt(params[0]), params[1]))
-            {
-                if (isAdmin)
-                {
-                    Intent i = new Intent(LoginActivity.this, OrganizationActivity.class);
-                    startActivity(i);
-                    return null;
-                }
-                else
-                {
-                    Intent i = new Intent(LoginActivity.this, LocationActivity.class);
-                    startActivity(i);
-                    return null;
-                }
+            if (LoginPost(Integer.parseInt(params[0]), params[1])) {
+
+                Intent i = new Intent(LoginActivity.this, LocationActivity.class);
+                startActivity(i);
+                return null;
+
             }
             return null;
         }
@@ -319,113 +406,64 @@ public class LoginActivity extends ActionBarActivity{
                 toast.setGravity(Gravity.BOTTOM, 0, 75);
                 toast.show();
 
-                imageEntry1.setImageResource(R.drawable.pin_x);
-                imageEntry2.setImageResource(R.drawable.pin_x);
-                imageEntry3.setImageResource(R.drawable.pin_x);
-                imageEntry4.setImageResource(R.drawable.pin_x);
-
-                final Vibrator vibe = (Vibrator) LoginActivity.this.getSystemService(Context.VIBRATOR_SERVICE);
-                vibe.vibrate(200);
-
-
-                YoYo.with(Techniques.Shake)
-                        .duration(1000)
-                        .playOn(imageEntry1);
-
-                YoYo.with(Techniques.Shake)
-                        .duration(1000)
-                        .playOn(imageEntry2);
-
-                YoYo.with(Techniques.Shake)
-                        .duration(1000)
-                        .playOn(imageEntry3);
-
-                YoYo.with(Techniques.Shake)
-                        .duration(1000)
-                        .playOn(imageEntry4);
-
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageEntry1.setImageResource(R.drawable.no_pin);
-                        imageEntry2.setImageResource(R.drawable.no_pin);
-                        imageEntry3.setImageResource(R.drawable.no_pin);
-                        imageEntry4.setImageResource(R.drawable.no_pin);
-                        imageEntry1.setTag(null);
-                        imageEntry2.setTag(null);
-                        imageEntry3.setTag(null);
-                        imageEntry4.setTag(null);
-                    }
-                }, 1500);
+                YoyoPin();
             }
             mProgressDialog.dismiss();
         }
 
         private boolean LoginPost(int organizationId, String pin) {
-            if (isAdmin)
-            {
-                if (pin.equals(getString(R.string.admin_password)))
-                {
+
+            URL url;
+            HttpURLConnection connection;
+            OutputStreamWriter request;
+            JSONObject responseData;
+            JSONObject postData;
+            InputStreamReader isr;
+            String result;
+
+            try {
+                postData = new JSONObject();
+                postData.accumulate("OrganizationId", organizationId);
+                postData.accumulate("Pin", pin);
+
+                url = new URL(Utilities.AppURL + Utilities.LoginURL);
+
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setFixedLengthStreamingMode(postData.toString().length());
+                connection.setDoOutput(true);
+                connection.setDoInput(true);
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("Content-type", "application/json");
+                connection.setRequestMethod("POST");
+
+                request = new OutputStreamWriter(connection.getOutputStream());
+                request.write(postData.toString());
+                request.flush();
+                request.close();
+
+                if (connection.getResponseCode() == 200) {
+                    isr = new InputStreamReader(connection.getInputStream());
+                    result = Utilities.StreamToString(isr);
+                    responseData = new JSONObject(result);
+
                     Utilities.currentUser = new User();
+                    Utilities.currentUser.organizationId = organizationId;
+                    Utilities.currentUser.userId = responseData.getInt("UserId");
+                    Utilities.currentUser.name = responseData.getString("Name");
+
+                    Utilities.currentContext = new CurrentContext();
+                    Utilities.currentContext.organizationId = organizationId;
+
+                    if (!dbHelper.isUserStored(pin)) {
+                        dbHelper.insertUser(responseData.getInt("UserId"), Integer.parseInt(pin), organizationId, responseData.getString("Name"));
+                    }
                     return true;
-                }
-                else
+                } else
                     return false;
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
             }
-            else
-            {
-                URL url;
-                HttpURLConnection connection;
-                OutputStreamWriter request;
-                JSONObject responseData;
-                JSONObject postData;
-                InputStreamReader isr;
-                String result;
 
-                try
-                {
-                    postData = new JSONObject();
-                    postData.accumulate("OrganizationId", organizationId);
-                    postData.accumulate("Pin", pin);
-
-                    url = new URL(Utilities.AppURL + Utilities.LoginURL);
-
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setFixedLengthStreamingMode(postData.toString().length());
-                    connection.setDoOutput(true);
-                    connection.setDoInput(true);
-                    connection.setRequestProperty("Accept", "application/json");
-                    connection.setRequestProperty("Content-type", "application/json");
-                    connection.setRequestMethod("POST");
-
-                    request = new OutputStreamWriter(connection.getOutputStream());
-                    request.write(postData.toString());
-                    request.flush();
-                    request.close();
-
-                    if (connection.getResponseCode() == 200)
-                    {
-                        isr = new InputStreamReader(connection.getInputStream());
-                        result = Utilities.StreamToString(isr);
-                        responseData = new JSONObject(result);
-
-                        Utilities.currentUser = new User();
-                        Utilities.currentUser.organizationId = organizationId;
-                        Utilities.currentUser.userId = responseData.getInt("UserId");
-                        Utilities.currentUser.name = responseData.getString("Name");
-
-                        Utilities.currentContext = new CurrentContext();
-                        Utilities.currentContext.organizationId = organizationId;
-
-                        return true;
-                    } else
-                        return false;
-                } catch (JSONException | IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
 
             return false;
         }

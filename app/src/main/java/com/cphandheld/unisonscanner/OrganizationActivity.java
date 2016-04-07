@@ -3,6 +3,7 @@ package com.cphandheld.unisonscanner;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -38,12 +39,17 @@ public class OrganizationActivity extends HeaderActivity
     Button buttonChangeUrl;
     private ProgressDialog mProgressDialog;
 
+    private DBHelper dbHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_organization);
         setHeader(R.color.colorOrgHeader, getResources().getString(R.string.hello_admin), "", R.string.org_header);
+
+        dbHelper = new DBHelper(OrganizationActivity.this);
+        dbHelper.getWritableDatabase();
 
         mProgressDialog = new ProgressDialog(OrganizationActivity.this);
         mProgressDialog.setIndeterminate(false);
@@ -130,7 +136,15 @@ public class OrganizationActivity extends HeaderActivity
             }
         });
 
-        new loadOrganizations().execute();
+        if(Utilities.isNetworkAvailable(OrganizationActivity.this)) {
+            new loadOrganizations().execute();
+        }
+        else
+        {
+            GetOrganizationsDB();
+            Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Please check internet connection.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onBackPressed()
@@ -169,6 +183,34 @@ public class OrganizationActivity extends HeaderActivity
         }
     }
 
+    public void GetOrganizationsDB()
+    {
+        Cursor c = dbHelper.getOrganizations();
+        orgs = new ArrayList(c.getCount());
+
+        if (c.moveToFirst()) {
+            do {
+
+                Organization org = new Organization();
+
+                int nameIndex = c.getColumnIndex("name");
+                org.name = c.getString(nameIndex);
+
+                int organizationIdIndex = c.getColumnIndex("organizationId");
+                org.organizationId = c.getInt(organizationIdIndex);
+
+                orgs.add(org);
+            } while (c.moveToNext());
+        }
+        c.close();
+
+        if (orgs != null && orgs.size() > 0) {
+            ArrayAdapter<Organization> adapter = new ArrayAdapter<Organization>(OrganizationActivity.this, R.layout.generic_list, orgs);
+            listOrganizations.setAdapter(adapter);
+        }
+        mProgressDialog.dismiss();
+    }
+
     private class loadOrganizations extends AsyncTask<String, Void, Void>
     {
 
@@ -185,11 +227,7 @@ public class OrganizationActivity extends HeaderActivity
 
         @Override
         protected void onPostExecute(Void unused) {
-            if (orgs != null && orgs.size() > 0) {
-                ArrayAdapter<Organization> adapter = new ArrayAdapter<Organization>(OrganizationActivity.this, R.layout.generic_list, orgs);
-                listOrganizations.setAdapter(adapter);
-            }
-            mProgressDialog.dismiss();
+            GetOrganizationsDB();
         }
 
         private void getOrganizations() {
@@ -206,17 +244,16 @@ public class OrganizationActivity extends HeaderActivity
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
+                    dbHelper.clearOrganizationTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
                     orgs = new ArrayList(responseData.length());
 
                     for (int i = 0; i < responseData.length(); i++) {
-                        Organization org = new Organization();
                         JSONObject temp = responseData.getJSONObject(i);
-                        org.name = temp.getString("Name");
-                        org.organizationId = temp.getInt("OrganizationId");
-                        orgs.add(org);
+
+                        dbHelper.insertOrganization(temp.getInt("OrganizationId"), temp.getString("Name"));
                     }
                 }
             } catch (JSONException | IOException e) {

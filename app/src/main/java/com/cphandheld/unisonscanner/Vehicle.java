@@ -7,11 +7,11 @@ import java.io.Serializable;
  */
 public class Vehicle implements Serializable
 {
-    String vin;
-    int year;
-    String make;
-    String model;
-    String color;
+    String VIN;
+    int Year;
+    String Make;
+    String Model;
+    String Color;
 
     Vehicle() {
     }

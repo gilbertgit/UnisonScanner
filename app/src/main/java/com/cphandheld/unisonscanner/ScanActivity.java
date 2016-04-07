@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.widget.TextView;
-
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,16 +16,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-
 import android.widget.Toast;
-
 import com.symbol.emdk.*;
 import com.symbol.emdk.EMDKManager;
 import com.symbol.emdk.EMDKManager.EMDKListener;
 import com.symbol.emdk.EMDKResults;
-import com.symbol.emdk.barcode.BarcodeManager;
-import com.symbol.emdk.barcode.Scanner;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -97,22 +90,23 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         super.onResume();
 
         textStatus.setText("Scan a VIN");
-        IntentFilter intentFilter = new IntentFilter("com.cphandheld.unisonscanner.RECVRBI");
+        IntentFilter intentFilter = new IntentFilter(getString(R.string.scan_intent));
         //Create a our Broadcast Receiver.
         EMDKReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 //Get the source of the data
-                String source = intent.getStringExtra("com.motorolasolutions.emdk.datawedge.source");
+
+                String source = intent.getStringExtra(getString(R.string.datawedge_source));
 
                 //Check if the data has come from the barcode scanner
                 if (source.equalsIgnoreCase("scanner")) {
                     //Get the data from the intent
-                    String data = intent.getStringExtra("com.motorolasolutions.emdk.datawedge.data_string");
+                    String data = intent.getStringExtra(getString(R.string.datawedge_data_string));
 
                     //Check that we have received data
                     if (data != null && data.length() > 0) {
-                        String barcode = CheckVinSpecialCases(data);
+                        String barcode = Utilities.CheckVinSpecialCases(data);
 
                         if (barcode.length() != 17) {
                             Toast.makeText(ScanActivity.this, "Scanned VIN is not 17 characters", Toast.LENGTH_SHORT).show();
@@ -127,8 +121,18 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             textStatus.setText("");
 
                             Utilities.currentContext.vehicle = new Vehicle();
-                            Utilities.currentContext.vehicle.vin = barcode;
-                            new VerifyVehicleTask().execute(barcode);
+                            Utilities.currentContext.vehicle.VIN = barcode;
+                            if (Utilities.isNetworkAvailable(ScanActivity.this)) {
+                                new VerifyVehicleTask().execute(barcode);
+                            } else {
+                                Utilities.currentContext.vehicle.Make = "";
+                                Utilities.currentContext.vehicle.Model = "";
+                                Utilities.currentContext.vehicle.Color = "";
+                                Utilities.currentContext.binId = 0;
+                                //Toast.makeText(ScanActivity.this, "Please check your internet connection.", Toast.LENGTH_LONG).show();
+                                Intent i = new Intent(ScanActivity.this, BinActivity.class);
+                                startActivity(i);
+                            }
                         }
                     }
                 }
@@ -236,19 +240,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         super.onStop();
     }
 
-    private String CheckVinSpecialCases(String vin) {
-        String formattedVIN = vin;
-
-        if (vin.length() > 17) {
-            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0, 1).equals(" ")) // Ford, Mazda, Honda Issues
-                formattedVIN = vin.substring(1, 18);
-            else if (vin.length() == 18)
-                formattedVIN = vin.substring(0, 17); // Lexus Issue
-        }
-
-        return formattedVIN;
-    }
-
     private class VerifyVehicleTask extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -280,7 +271,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         @Override
         protected void onPostExecute(Void unused) {
             mProgressDialog.dismiss();
-            if(!procError) {
+            if (!procError) {
                 if (!validVin) {
                     Toast.makeText(ScanActivity.this, "This is not a valid VIN.", Toast.LENGTH_LONG).show();
                     imageStatus.setImageResource(R.drawable.x);
@@ -291,9 +282,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                     imageStatus.setImageResource(R.drawable.x);
                     imageStatus.setVisibility(View.VISIBLE);
                 }
-            }
-            else
-            {
+            } else {
                 Toast.makeText(ScanActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                 imageStatus.setImageResource(R.drawable.x);
                 imageStatus.setVisibility(View.VISIBLE);
@@ -342,10 +331,10 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
                     if (success) {
                         JSONObject veh = responseData.getJSONObject("Vehicle");
-                        Utilities.currentContext.vehicle.year = veh.getInt("Year");
-                        Utilities.currentContext.vehicle.make = veh.getString("Make");
-                        Utilities.currentContext.vehicle.model = veh.getString("Model");
-                        Utilities.currentContext.vehicle.color = veh.getString("Color");
+                        Utilities.currentContext.vehicle.Year = veh.getInt("Year");
+                        Utilities.currentContext.vehicle.Make = veh.getString("Make");
+                        Utilities.currentContext.vehicle.Model = veh.getString("Model");
+                        Utilities.currentContext.vehicle.Color = veh.getString("Color");
                         Utilities.currentContext.binId = responseData.getInt("BinId");
 
                         int loc = responseData.getInt("LocationId");

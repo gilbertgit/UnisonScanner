@@ -39,6 +39,7 @@ public class Utilities {
     public static final String BinsURL = "api/Bins/Location/";
     public static final String PathURL = "api/PathTemplate/Location/";
     public static final String VehicleInfoURL = "api/TicketHeader/DecodeVin/";
+    public static final String VehicleCheckInListURL = "api/Inventory/CheckIn/List";
     public static final String VehicleCheckInURL = "api/Inventory/CheckIn";
     public static final String VehicleTicketSuffix = "/Ticket";
     public static final String StartStopURL = "api/TicketService/SetWork/CheckInApp";
@@ -59,13 +60,11 @@ public class Utilities {
 
     }
 
-    public static String CheckVinSpecialCases(String vin)
-    {
+    public static String CheckVinSpecialCases(String vin) {
         String formattedVIN = vin;
 
-        if (vin.length() > 17)
-        {
-            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0,1).equals(" ")) //                        Ford, Mazda, Honda Issues
+        if (vin.length() > 17) {
+            if (vin.substring(0, 1).toUpperCase().equals("I") || vin.substring(0, 1).toUpperCase().equals("A") || vin.substring(0, 1).equals(" ")) // Ford, Mazda, Honda Issues
                 formattedVIN = vin.substring(1, 18);
             else if (vin.length() == 18)
                 formattedVIN = vin.substring(0, 17); // Lexus Issue

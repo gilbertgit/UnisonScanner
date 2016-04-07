@@ -2,6 +2,7 @@ package com.cphandheld.unisonscanner;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -44,12 +45,17 @@ public class PathActivity extends HeaderActivity
     String errorMessage;
     private ProgressDialog mProgressDialog;
 
+    private DBHelper dbHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path);
         setHeader(R.color.colorPathHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, R.string.path_header);
+
+        dbHelper = new DBHelper(PathActivity.this);
+        dbHelper.getWritableDatabase();
 
         mProgressDialog = new ProgressDialog(PathActivity.this);
         mProgressDialog.setIndeterminate(false);
@@ -58,7 +64,7 @@ public class PathActivity extends HeaderActivity
         mProgressDialog.setMessage("Hold on a sec...");
 
         textVIN = (TextView) findViewById(R.id.textVIN);
-        textVIN.setText(Utilities.currentContext.vehicle.vin);
+        textVIN.setText(Utilities.currentContext.vehicle.VIN);
 
         textBin = (TextView) findViewById(R.id.textBin);
         textBin.setText(Utilities.currentContext.binName.toUpperCase());
@@ -92,7 +98,7 @@ public class PathActivity extends HeaderActivity
             public void onClick(View view) {
                 Intent intent = new Intent(PathActivity.this, NotesActivity.class);
                 Utilities.currentContext.pathId = -1;
-                Utilities.currentContext.pathName = getResources().getString(R.string.custom_path_item);;
+                Utilities.currentContext.pathName = getResources().getString(R.string.custom_path_item);
                 Utilities.currentContext.startPath = true;
                 startActivityForResult(intent, 1);
             }
@@ -103,18 +109,48 @@ public class PathActivity extends HeaderActivity
             @Override
             public void onClick(View view) {
                 Utilities.currentContext.pathId = -1;
-                Utilities.currentContext.pathName = getResources().getString(R.string.no_path_item);;
+                Utilities.currentContext.pathName = getResources().getString(R.string.no_path_item);
                 Utilities.currentContext.startPath = false;
 
                 if(Utilities.isNetworkAvailable(getApplicationContext()))
                     new CheckIn().execute();
                 else {
-                    Toast.makeText(getApplicationContext(), "Please connect to internet", Toast.LENGTH_SHORT).show();
+                    StoreVehicleCheckIn();
+                    //Toast.makeText(getApplicationContext(), "Please connect to internet.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
+        if(Utilities.isNetworkAvailable(getApplicationContext())) {
+            new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
+        }
+        else
+        {
+            GetPathsDB();
+        }
+    }
+
+    private void StoreVehicleCheckIn()
+    {
+        CheckInPost cip = new CheckInPost();
+        cip.Action = "MOVEBIN";
+        cip.LocationId = Utilities.currentContext.locationId;
+        cip.BinId = Utilities.currentContext.binId;
+        cip.PathId = Utilities.currentContext.pathId;
+        cip.Notes = Utilities.currentContext.notes;
+        cip.UserId = Utilities.currentUser.userId;
+        cip.StartPath = Utilities.currentContext.startPath;
+        cip.Vehicle = Utilities.currentContext.vehicle;
+
+        Gson gson = new Gson();
+        String json = gson.toJson(cip);
+
+        dbHelper.insertVehicleEntry(json);
+
+        Intent i = new Intent(PathActivity.this, ScanActivity.class);
+        // We want to finish() the activities after ScanActivity
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -174,12 +210,46 @@ public class PathActivity extends HeaderActivity
         }
     }
 
+    public void GetPathsDB()
+    {
+        Cursor c = dbHelper.getPaths(Utilities.currentContext.locationId);
+        paths = new ArrayList(c.getCount());
+
+        if (c.moveToFirst()) {
+            do {
+
+                Path path = new Path();
+
+                int nameIndex = c.getColumnIndex("name");
+                path.name = c.getString(nameIndex);
+
+                int pathIdIndex = c.getColumnIndex("pathId");
+                path.pathId = c.getInt(pathIdIndex);
+
+                int startPathIndex = c.getColumnIndex("startPath");
+                int startPath = c.getInt(startPathIndex);
+                if (startPath == 1)
+                    path.startPath = true;
+                else
+                    path.startPath = false;
+
+                paths.add(path);
+            } while (c.moveToNext());
+        }
+        c.close();
+
+        if (paths != null && paths.size() > 0) {
+            ArrayAdapter<Path> adapter = new ArrayAdapter<Path>(PathActivity.this, R.layout.generic_list, paths);
+            listPaths.setAdapter(adapter);
+        }
+    }
+
     private class loadPaths extends AsyncTask<String, Void, Void>
     {
 
         @Override
         protected void onPreExecute() {
-            //Toast.makeText(getApplicationContext(), "Loading bins...", Toast.LENGTH_SHORT).show();
+            mProgressDialog.show();
         }
 
         @Override
@@ -190,10 +260,8 @@ public class PathActivity extends HeaderActivity
 
         @Override
         protected void onPostExecute(Void unused) {
-            if (paths != null && paths.size() > 0) {
-                ArrayAdapter<Path> adapter = new ArrayAdapter<Path>(PathActivity.this, R.layout.generic_list, paths);
-                listPaths.setAdapter(adapter);
-            }
+            GetPathsDB();
+            mProgressDialog.dismiss();
         }
 
         private void getPaths(int locationId) {
@@ -210,18 +278,15 @@ public class PathActivity extends HeaderActivity
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
+                    dbHelper.clearPathTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
                     paths = new ArrayList(responseData.length());
 
                     for (int i = 0; i < responseData.length(); i++) {
-                        Path path = new Path();
                         JSONObject temp = responseData.getJSONObject(i);
-                        path.name = temp.getString("PathName");
-                        path.pathId = temp.getInt("PathId");
-                        path.startPath = true;
-                        paths.add(path);
+                        dbHelper.insertPath(temp.getInt("PathId"), temp.getString("PathName"), 1, Utilities.currentContext.locationId);
                     }
                 }
             } catch (JSONException | IOException e) {
@@ -289,13 +354,14 @@ public class PathActivity extends HeaderActivity
 
             try {
                 CheckInPost cip = new CheckInPost();
-                cip.locationId = Utilities.currentContext.locationId;
-                cip.binId = Utilities.currentContext.binId;
-                cip.pathId = Utilities.currentContext.pathId;
-                cip.notes = Utilities.currentContext.notes;
-                cip.userId = Utilities.currentUser.userId;
-                cip.startPath = Utilities.currentContext.startPath;
-                cip.vehicle = Utilities.currentContext.vehicle;
+                cip.Action = "MOVEBIN";
+                cip.LocationId = Utilities.currentContext.locationId;
+                cip.BinId = Utilities.currentContext.binId;
+                cip.PathId = Utilities.currentContext.pathId;
+                cip.Notes = Utilities.currentContext.notes;
+                cip.UserId = Utilities.currentUser.userId;
+                cip.StartPath = Utilities.currentContext.startPath;
+                cip.Vehicle = Utilities.currentContext.vehicle;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -337,18 +403,17 @@ public class PathActivity extends HeaderActivity
     }
 
     public class CheckInPost implements Serializable {
-        int locationId;
-        int binId;
-        int pathId;
-        String notes;
-        int userId;
-        boolean startPath;
-        Vehicle vehicle;
+        String Action;
+        int LocationId;
+        int BinId;
+        int PathId;
+        String Notes;
+        int UserId;
+        boolean StartPath;
+        Vehicle Vehicle;
 
 
         CheckInPost() {
         }
-
-
     }
 }

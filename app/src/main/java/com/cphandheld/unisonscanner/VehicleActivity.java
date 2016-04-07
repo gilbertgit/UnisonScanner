@@ -37,7 +37,7 @@ public class VehicleActivity extends HeaderActivity {
         editTextModel = (EditText) findViewById(R.id.textEditModel);
         editTextColor = (EditText) findViewById(R.id.textEditColor);
         buttonSubmitInfo = (Button) findViewById(R.id.buttonSubmitInfo);
-        textVIN.setText(Utilities.currentContext.vehicle.vin);
+        textVIN.setText(Utilities.currentContext.vehicle.VIN);
 
 
 
@@ -54,13 +54,13 @@ public class VehicleActivity extends HeaderActivity {
                 if (!editTextYear.getText().equals("") && !editTextMake.getText().equals("")
                         && !editTextModel.getText().equals("") && !editTextColor.getText().equals("")) {
                     try {
-                        Utilities.currentContext.vehicle.year = Integer.parseInt(editTextYear.getText().toString());
+                        Utilities.currentContext.vehicle.Year = Integer.parseInt(editTextYear.getText().toString());
                     } catch (NumberFormatException nfe) {
                         Toast.makeText(getApplicationContext(), "Invalid year..", Toast.LENGTH_SHORT).show();
                     }
-                    Utilities.currentContext.vehicle.make = editTextMake.getText().toString();
-                    Utilities.currentContext.vehicle.model = editTextModel.getText().toString();
-                    Utilities.currentContext.vehicle.color = editTextColor.getText().toString();
+                    Utilities.currentContext.vehicle.Make = editTextMake.getText().toString();
+                    Utilities.currentContext.vehicle.Model = editTextModel.getText().toString();
+                    Utilities.currentContext.vehicle.Color = editTextColor.getText().toString();
 
                     Intent i = new Intent(VehicleActivity.this, BinActivity.class);
                     i.putExtra("origin", "vehicle_activity");
@@ -74,13 +74,13 @@ public class VehicleActivity extends HeaderActivity {
     protected void onResume()
     {
         super.onResume();
-        int year = Utilities.currentContext.vehicle.year;
+        int year = Utilities.currentContext.vehicle.Year;
         if(year != 0)
         {
             editTextYear.setText(String.valueOf(year));
-            editTextMake.setText(Utilities.currentContext.vehicle.make);
-            editTextModel.setText(Utilities.currentContext.vehicle.model);
-            editTextColor.setText(Utilities.currentContext.vehicle.color);
+            editTextMake.setText(Utilities.currentContext.vehicle.Make);
+            editTextModel.setText(Utilities.currentContext.vehicle.Model);
+            editTextColor.setText(Utilities.currentContext.vehicle.Color);
         }
     }
 

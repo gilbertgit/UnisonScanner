@@ -27,4 +27,8 @@
     <string name="move_button">MOVE</string>
     <string name="no_path_button">NO PATH / CHECK IN</string>
     <string name="vehicle_info_header">VEHICLE INFORMATION</string>
+    <string name="datawedge_data_string">"com.motorolasolutions.emdk.datawedge.data_string"</string>
+    <string name="datawedge_source">"com.motorolasolutions.emdk.datawedge.source"</string>
+    <string name="scan_intent">"com.cphandheld.unisonscanner.RECVRBI"</string>
+    <string name="local_service_started">Unison Running</string>
 </resources>

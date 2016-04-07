@@ -1,6 +1,8 @@
 package com.cphandheld.unisonscanner;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -31,11 +33,16 @@ public class LocationActivity extends HeaderActivity
     ListView listLocations;
     ArrayList locs;
 
+    private DBHelper dbHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
         setHeader(R.color.colorLocHeader, Utilities.currentUser.name, "", R.string.loc_header);
+
+        dbHelper = new DBHelper(LocationActivity.this);
+        dbHelper.getWritableDatabase();
 
         listLocations = (ListView) findViewById(R.id.listLocations);
         listLocations.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -58,7 +65,15 @@ public class LocationActivity extends HeaderActivity
             }
         });
 
-        new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+        if(Utilities.isNetworkAvailable(LocationActivity.this)) {
+            new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+        }
+        else
+        {
+            GetLocationsDB();
+            //Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onBackPressed() {
@@ -119,6 +134,31 @@ public class LocationActivity extends HeaderActivity
         }
     }
 
+    public void GetLocationsDB()
+    {
+        Cursor c = dbHelper.getLocations();
+        locs = new ArrayList(c.getCount());
+
+        if (c.moveToFirst()) {
+            do {
+                Locations loc = new Locations();
+                int nameIndex = c.getColumnIndex("name");
+                loc.name = c.getString(nameIndex);
+
+                int locationIdIndex = c.getColumnIndex("locationId");
+                loc.locationId = c.getInt(locationIdIndex);
+
+                locs.add(loc);
+            } while (c.moveToNext());
+        }
+        c.close();
+
+        if (locs != null && locs.size() > 0) {
+            ArrayAdapter<Locations> adapter = new ArrayAdapter<Locations>(LocationActivity.this, R.layout.generic_list, locs);
+            listLocations.setAdapter(adapter);
+        }
+    }
+
     private class loadLocations extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -134,10 +174,7 @@ public class LocationActivity extends HeaderActivity
 
         @Override
         protected void onPostExecute(Void unused) {
-              if (locs != null && locs.size() > 0) {
-                  ArrayAdapter<Locations> adapter = new ArrayAdapter<Locations>(LocationActivity.this, R.layout.generic_list, locs);
-                  listLocations.setAdapter(adapter);
-              }
+            GetLocationsDB();
         }
 
         private void getLocations(int organizationId) {
@@ -154,17 +191,17 @@ public class LocationActivity extends HeaderActivity
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
+                    dbHelper.clearLocationTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
                     locs = new ArrayList(responseData.length());
 
                     for (int i = 0; i < responseData.length(); i++) {
-                        Locations loc = new Locations();
+
                         JSONObject temp = responseData.getJSONObject(i);
-                        loc.name = temp.getString("Title");
-                        loc.locationId = temp.getInt("LocationId");
-                        locs.add(loc);
+
+                        dbHelper.insertLocation(temp.getInt("LocationId"), temp.getString("Title"));
                     }
                 }
             } catch (JSONException | IOException e) {

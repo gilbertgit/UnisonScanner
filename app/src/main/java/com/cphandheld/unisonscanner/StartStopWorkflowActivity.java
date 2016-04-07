@@ -134,7 +134,7 @@ public class StartStopWorkflowActivity extends HeaderActivity implements EMDKMan
                     {
                         textVIN.setText(data);
                         Utilities.currentContext.vehicle = new Vehicle();
-                        Utilities.currentContext.vehicle.vin = data;
+                        Utilities.currentContext.vehicle.VIN = data;
                         new GetVehicleInfoTask().execute(data);
                     }
                 }
@@ -175,10 +175,10 @@ public class StartStopWorkflowActivity extends HeaderActivity implements EMDKMan
         @Override
         protected void onPostExecute(Void unused) {
 
-            textYear.setText(Integer.toString(Utilities.currentContext.vehicle.year));
-            textMake.setText(Utilities.currentContext.vehicle.make);
-            textModel.setText(Utilities.currentContext.vehicle.model);
-            String color = Utilities.currentContext.vehicle.color;
+            textYear.setText(Integer.toString(Utilities.currentContext.vehicle.Year));
+            textMake.setText(Utilities.currentContext.vehicle.Make);
+            textModel.setText(Utilities.currentContext.vehicle.Model);
+            String color = Utilities.currentContext.vehicle.Color;
             if(color == null || color.equals("null"))
                 textColor.setText("Color Not Set");
             else
@@ -250,10 +250,10 @@ public class StartStopWorkflowActivity extends HeaderActivity implements EMDKMan
                     if (success)
                     {
                         JSONObject veh = responseData.getJSONObject("Vehicle");
-                        Utilities.currentContext.vehicle.year = veh.getInt("Year");
-                        Utilities.currentContext.vehicle.make = veh.getString("Make");
-                        Utilities.currentContext.vehicle.model = veh.getString("Model");
-                        Utilities.currentContext.vehicle.color = veh.getString("Color");
+                        Utilities.currentContext.vehicle.Year = veh.getInt("Year");
+                        Utilities.currentContext.vehicle.Make = veh.getString("Make");
+                        Utilities.currentContext.vehicle.Model = veh.getString("Model");
+                        Utilities.currentContext.vehicle.Color = veh.getString("Color");
                         Utilities.currentContext.binId = responseData.getInt("BinId");
                         Utilities.currentContext.binName = responseData.getString("BinName");
                         //Object t = responseData.getJSONObject("Ticket");
