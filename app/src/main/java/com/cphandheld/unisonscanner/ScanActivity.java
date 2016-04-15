@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.TextView;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import java.net.URL;
 
 public class ScanActivity extends HeaderActivity implements EMDKListener {
 
+    public static final String PREFS_FILE = "SharedPrefs";
     TextView textVIN;
     TextView textStatus;
     ImageView imageStatus;
@@ -43,6 +46,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     boolean validVin = true;
     boolean locationMatch = true;
     boolean procError = false;
+    boolean usesStock;
 
     private ProgressDialog mProgressDialog;
 
@@ -63,18 +67,14 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         setContentView(R.layout.activity_scan);
         setHeader(R.color.colorScanHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, R.string.scan_header);
 
+        SharedPreferences prefs = getSharedPreferences(PREFS_FILE, 0);
+        usesStock = prefs.getBoolean("usesStock", false);
+
         textVIN = (TextView) findViewById(R.id.textVIN);
         textStatus = (TextView) findViewById(R.id.textStatus);
         textStatus.setText("Scan a VIN");
         imageStatus = (ImageView) findViewById(R.id.imageStatus);
         imageStatus.setVisibility(View.INVISIBLE);
-
-        mProgressDialog = new ProgressDialog(ScanActivity.this);
-        mProgressDialog.setIndeterminate(false);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setTitle("Fetching vehicle info...");
-        mProgressDialog.setMessage("Hold on a sec...");
-
 
         EMDKResults results = EMDKManager.getEMDKManager(getApplicationContext(), this);
         // Check the return status of getEMDKManager and update the status Text
@@ -88,6 +88,12 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     protected void onResume() {
 // TODO Auto-generated method stub
         super.onResume();
+
+        mProgressDialog = new ProgressDialog(ScanActivity.this);
+        mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setTitle("Fetching vehicle info...");
+        mProgressDialog.setMessage("Hold on a sec...");
 
         textStatus.setText("Scan a VIN");
         IntentFilter intentFilter = new IntentFilter(getString(R.string.scan_intent));
@@ -123,6 +129,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             Utilities.currentContext.vehicle = new Vehicle();
                             Utilities.currentContext.vehicle.VIN = barcode;
                             if (Utilities.isNetworkAvailable(ScanActivity.this)) {
+                                mProgressDialog.show();
                                 new VerifyVehicleTask().execute(barcode);
                             } else {
                                 Utilities.currentContext.vehicle.Make = "";
@@ -244,20 +251,29 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog.show();
+
         }
 
         @Override
         protected Void doInBackground(String... params) {
 
             if (VerifyVehicle((params[0]))) {
+                mProgressDialog.dismiss();
+                mProgressDialog = null;
                 if (locationMatch) {
                     onClosed();
-                    Intent i = new Intent(ScanActivity.this, BinActivity.class);
+                    Intent i;
+                    if(usesStock)
+                        i=  new Intent(ScanActivity.this, StockActivity.class);
+                    else
+                        i = new Intent(ScanActivity.this, BinActivity.class);
+
                     startActivity(i);
                 }
                 return null;
             } else {
+                mProgressDialog.dismiss();
+                mProgressDialog = null;
                 if (validVin && !procError) {
                     onClosed();
                     Intent i = new Intent(ScanActivity.this, VehicleActivity.class);
@@ -270,7 +286,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mProgressDialog.dismiss();
+
             if (!procError) {
                 if (!validVin) {
                     Toast.makeText(ScanActivity.this, "This is not a valid VIN.", Toast.LENGTH_LONG).show();
@@ -334,8 +350,17 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                         Utilities.currentContext.vehicle.Year = veh.getInt("Year");
                         Utilities.currentContext.vehicle.Make = veh.getString("Make");
                         Utilities.currentContext.vehicle.Model = veh.getString("Model");
-                        Utilities.currentContext.vehicle.Color = veh.getString("Color");
+
+                        if(veh.getString("Color") == "" || veh.getString("Color") == "null")
+                            Utilities.currentContext.vehicle.Color = null;
+                        else
+                            Utilities.currentContext.vehicle.Color = veh.getString("Color");
                         Utilities.currentContext.binId = responseData.getInt("BinId");
+
+                        if(veh.getString("Stock") == "null")
+                            Utilities.currentContext.Stock = "";
+                        else
+                            Utilities.currentContext.Stock = veh.getString("Stock");
 
                         int loc = responseData.getInt("LocationId");
 

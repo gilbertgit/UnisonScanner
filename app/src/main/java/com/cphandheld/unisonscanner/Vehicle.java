@@ -12,6 +12,7 @@ public class Vehicle implements Serializable
     String Make;
     String Model;
     String Color;
+    String Stock;
 
     Vehicle() {
     }

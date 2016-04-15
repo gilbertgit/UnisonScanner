@@ -19,6 +19,7 @@ public class CurrentContext implements Serializable
     String pathName;
     String notes;
     VehicleTicket vehicleTicket;
+    String Stock;
 
     CurrentContext() {
     }

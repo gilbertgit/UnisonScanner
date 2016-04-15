@@ -82,8 +82,6 @@ public class BinActivity extends HeaderActivity {
         else
         {
             GetBinsDB();
-            //Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
-            //Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -2,6 +2,7 @@ package com.cphandheld.unisonscanner;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -14,6 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class VehicleActivity extends HeaderActivity {
+
+    public static final String PREFS_FILE = "SharedPrefs";
+
     TextView textVIN;
     EditText editTextYear;
     EditText editTextMake;
@@ -24,12 +28,16 @@ public class VehicleActivity extends HeaderActivity {
     private ProgressDialog mProgressDialog;
 
     String errorMessage;
+    boolean usesStock;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle);
         setHeader(R.color.colorVehicleHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, R.string.vehicle_header);
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_FILE, 0);
+        usesStock = prefs.getBoolean("usesStock", false);
 
         textVIN = (TextView) findViewById(R.id.textVIN);
         editTextYear = (EditText) findViewById(R.id.textEditYear);
@@ -39,13 +47,11 @@ public class VehicleActivity extends HeaderActivity {
         buttonSubmitInfo = (Button) findViewById(R.id.buttonSubmitInfo);
         textVIN.setText(Utilities.currentContext.vehicle.VIN);
 
-
-
         mProgressDialog = new ProgressDialog(VehicleActivity.this);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Uploading vehicle info...");
-        mProgressDialog.setMessage("Just hold on a sec...");
+        mProgressDialog.setMessage("Hold on a sec...");
 
         buttonSubmitInfo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +59,7 @@ public class VehicleActivity extends HeaderActivity {
 
                 if (!editTextYear.getText().equals("") && !editTextMake.getText().equals("")
                         && !editTextModel.getText().equals("") && !editTextColor.getText().equals("")) {
+                    Intent i;
                     try {
                         Utilities.currentContext.vehicle.Year = Integer.parseInt(editTextYear.getText().toString());
                     } catch (NumberFormatException nfe) {
@@ -62,7 +69,11 @@ public class VehicleActivity extends HeaderActivity {
                     Utilities.currentContext.vehicle.Model = editTextModel.getText().toString();
                     Utilities.currentContext.vehicle.Color = editTextColor.getText().toString();
 
-                    Intent i = new Intent(VehicleActivity.this, BinActivity.class);
+                    if(usesStock)
+                        i = new Intent(VehicleActivity.this, StockActivity.class);
+                    else
+                        i = new Intent(VehicleActivity.this, BinActivity.class);
+
                     i.putExtra("origin", "vehicle_activity");
                     startActivity(i);
                 } else
@@ -80,7 +91,10 @@ public class VehicleActivity extends HeaderActivity {
             editTextYear.setText(String.valueOf(year));
             editTextMake.setText(Utilities.currentContext.vehicle.Make);
             editTextModel.setText(Utilities.currentContext.vehicle.Model);
-            editTextColor.setText(Utilities.currentContext.vehicle.Color);
+            if(Utilities.currentContext.vehicle.Color == null)
+                editTextColor.setText("");
+            else
+                editTextColor.setText(Utilities.currentContext.vehicle.Color);
         }
     }
 

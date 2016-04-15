@@ -28,6 +28,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String VEHICLE_ENTRY_COLUMN_MAKE = "make";
     public static final String VEHICLE_ENTRY_COLUMN_MODEL = "model";
     public static final String VEHICLE_ENTRY_COLUMN_COLOR = "color";
+    public static final String VEHICLE_ENTRY_COLUMN_STOCK = "stock";
     public static final String VEHICLE_ENTRY_COLUMN_DATA = "data";
 
     public static final String VEHICLE_COLUMN_ID = "id";

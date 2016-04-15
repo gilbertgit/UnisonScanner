@@ -32,7 +32,18 @@
         android:fontFamily="Lato Medium"
         android:textSize="16sp"
         android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginLeft="10dp"
+        />
+
+    <CheckBox
+        android:id="@+id/checkboxStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonChangeUrl"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="20dp"
+        android:text="Uses Stock Number"
+        />
 
     <ListView
         android:id="@+id/listOrganizations"
@@ -42,6 +53,6 @@
         android:padding="20dp"
         android:divider="@color/colorDefaultBg"
         android:dividerHeight="10dp"
-        android:layout_below="@+id/buttonChangeUrl"/>
+        android:layout_below="@+id/checkboxStock"/>
 
 </RelativeLayout>

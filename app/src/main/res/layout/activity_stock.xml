@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorDefaultBg"
+                tools:context="com.cphandheld.unisonscanner.StockActivity">
+
+    <include layout="@layout/header"></include>
+
+    <TextView
+        android:id="@+id/textVIN"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:gravity="center_horizontal"
+        android:text="@string/empty_vin"
+        android:fontFamily="Lato Medium"
+        android:textColor="@color/colorSubHeaderText"
+        android:textSize="20sp"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"/>
+
+    <EditText
+        android:id="@+id/textStock"
+        android:layout_width="300dp"
+        android:layout_height="37dp"
+        android:layout_below="@+id/textVIN"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30dp"
+        android:background="#FFF"
+        android:inputType="textCapCharacters"
+        android:maxLength="20"
+        />
+
+    <Button
+        android:id="@+id/buttonNext"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_below="@+id/textStock"
+        android:layout_marginTop="380dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorCheckInButton"
+        android:textColor="@android:color/white"
+        android:text="NEXT"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
+
+</RelativeLayout>

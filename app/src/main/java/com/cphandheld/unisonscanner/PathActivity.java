@@ -362,6 +362,7 @@ public class PathActivity extends HeaderActivity
                 cip.UserId = Utilities.currentUser.userId;
                 cip.StartPath = Utilities.currentContext.startPath;
                 cip.Vehicle = Utilities.currentContext.vehicle;
+                cip.Vehicle.Stock = Utilities.currentContext.Stock;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -411,6 +412,7 @@ public class PathActivity extends HeaderActivity
         int UserId;
         boolean StartPath;
         Vehicle Vehicle;
+
 
 
         CheckInPost() {

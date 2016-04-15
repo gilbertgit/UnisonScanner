@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +39,7 @@ public class OrganizationActivity extends HeaderActivity
     ArrayList orgs;
     TextView textUrl;
     Button buttonChangeUrl;
+    CheckBox checkStock;
     private ProgressDialog mProgressDialog;
 
     private DBHelper dbHelper;
@@ -136,6 +139,11 @@ public class OrganizationActivity extends HeaderActivity
             }
         });
 
+        checkStock = (CheckBox)findViewById(R.id.checkboxStock);
+        checkStock.setChecked(settings.getBoolean("usesStock", false));
+        checkStock.setOnCheckedChangeListener(new myCheckBoxChangeClicker());
+
+
         if(Utilities.isNetworkAvailable(OrganizationActivity.this)) {
             new loadOrganizations().execute();
         }
@@ -144,6 +152,23 @@ public class OrganizationActivity extends HeaderActivity
             GetOrganizationsDB();
             Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
             Toast.makeText(getApplicationContext(), "Please check internet connection.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    class myCheckBoxChangeClicker implements CheckBox.OnCheckedChangeListener
+    {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            if(isChecked) {
+                editor.putBoolean("usesStock", true);
+            }
+            else
+            {
+                editor.putBoolean("usesStock", false);
+            }
+            editor.commit();
         }
     }
 
