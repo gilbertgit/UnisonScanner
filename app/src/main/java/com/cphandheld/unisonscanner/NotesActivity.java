@@ -77,6 +77,7 @@ public class NotesActivity extends HeaderActivity {
 
         mProgressDialog = new ProgressDialog(NotesActivity.this);
         mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Checking in vehicle...");
         mProgressDialog.setMessage("Hold on a sec...");

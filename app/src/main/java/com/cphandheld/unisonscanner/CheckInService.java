@@ -139,7 +139,7 @@ public class CheckInService extends Service {
                 {
                     checkInData += data[i];
 
-                    if(i == 0)
+                    if(i != data.length-1)
                         checkInData += ",";
                 }
                 checkInData += "]}";

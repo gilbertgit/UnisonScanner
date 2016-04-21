@@ -1,5 +1,6 @@
 package com.cphandheld.unisonscanner;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
@@ -11,6 +12,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,6 +36,7 @@ public class LocationActivity extends HeaderActivity
     ArrayList locs;
 
     private DBHelper dbHelper;
+    ProgressDialog mProgressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,13 @@ public class LocationActivity extends HeaderActivity
 
         dbHelper = new DBHelper(LocationActivity.this);
         dbHelper.getWritableDatabase();
+
+        mProgressDialog = new ProgressDialog(LocationActivity.this);
+        mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setTitle("Fetching Locations...");
+        mProgressDialog.setMessage("Just hold on a sec...");
 
         listLocations = (ListView) findViewById(R.id.listLocations);
         listLocations.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -157,12 +167,14 @@ public class LocationActivity extends HeaderActivity
             ArrayAdapter<Locations> adapter = new ArrayAdapter<Locations>(LocationActivity.this, R.layout.generic_list, locs);
             listLocations.setAdapter(adapter);
         }
+        mProgressDialog.dismiss();
     }
 
     private class loadLocations extends AsyncTask<String, Void, Void> {
 
         @Override
         protected void onPreExecute() {
+            mProgressDialog.show();
             //Toast.makeText(getApplicationContext(), "Loading locations...", Toast.LENGTH_SHORT).show();
         }
 

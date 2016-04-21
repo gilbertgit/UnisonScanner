@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.view.MotionEvent;
 import android.widget.TextView;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -91,6 +92,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
         mProgressDialog = new ProgressDialog(ScanActivity.this);
         mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Fetching vehicle info...");
         mProgressDialog.setMessage("Hold on a sec...");

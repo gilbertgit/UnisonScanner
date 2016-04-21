@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -101,6 +102,7 @@ public class LoginActivity extends ActionBarActivity {
 
         mProgressDialog = new ProgressDialog(LoginActivity.this);
         mProgressDialog.setIndeterminate(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Verifying your credentials...");
         mProgressDialog.setMessage("Hold on a sec...");
