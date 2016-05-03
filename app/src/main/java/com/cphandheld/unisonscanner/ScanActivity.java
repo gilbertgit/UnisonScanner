@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.widget.TextView;
@@ -48,6 +50,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     boolean locationMatch = true;
     boolean procError = false;
     boolean usesStock;
+    boolean isVerifyingVin = false;
 
     private ProgressDialog mProgressDialog;
 
@@ -61,6 +64,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     private EMDKManager emdkManager = null;
 
     private BroadcastReceiver EMDKReceiver;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,7 +118,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
                     //Check that we have received data
                     if (data != null && data.length() > 0) {
-                        String barcode = Utilities.CheckVinSpecialCases(data);
+                        final String barcode = Utilities.CheckVinSpecialCases(data);
 
                         if (barcode.length() != 17) {
                             Toast.makeText(ScanActivity.this, "Scanned VIN is not 17 characters", Toast.LENGTH_SHORT).show();
@@ -130,17 +134,10 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
                             Utilities.currentContext.vehicle = new Vehicle();
                             Utilities.currentContext.vehicle.VIN = barcode;
-                            if (Utilities.isNetworkAvailable(ScanActivity.this)) {
-                                mProgressDialog.show();
-                                new VerifyVehicleTask().execute(barcode);
-                            } else {
-                                Utilities.currentContext.vehicle.Make = "";
-                                Utilities.currentContext.vehicle.Model = "";
-                                Utilities.currentContext.vehicle.Color = "";
-                                Utilities.currentContext.binId = 0;
-                                //Toast.makeText(ScanActivity.this, "Please check your internet connection.", Toast.LENGTH_LONG).show();
-                                Intent i = new Intent(ScanActivity.this, BinActivity.class);
-                                startActivity(i);
+
+                            if(!isVerifyingVin) {
+                                isVerifyingVin = true;
+                                new checkConnectionAndVerifyTask().execute(barcode);
                             }
                         }
                     }
@@ -149,6 +146,32 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         };
         //Register our receiver.
         this.registerReceiver(EMDKReceiver, intentFilter);
+    }
+
+    private class checkConnectionAndVerifyTask extends AsyncTask<String, Void, Boolean> {
+        String barcode = "";
+        @Override
+        protected Boolean doInBackground(String... params) {
+            barcode = params[0];
+            return ConnectUtilities.hasInternetAccess(ScanActivity.this);
+        }
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                mProgressDialog.show();
+                new VerifyVehicleTask().execute(barcode);
+            }
+            else
+            {
+                Utilities.currentContext.vehicle.Make = "";
+                Utilities.currentContext.vehicle.Model = "";
+                Utilities.currentContext.vehicle.Color = "";
+                Utilities.currentContext.binId = 0;
+                Intent i = new Intent(ScanActivity.this, BinActivity.class);
+                startActivity(i);
+            }
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -305,6 +328,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 imageStatus.setImageResource(R.drawable.x);
                 imageStatus.setVisibility(View.VISIBLE);
             }
+
+            isVerifyingVin = false;
         }
 
         private boolean VerifyVehicle(String vin) {

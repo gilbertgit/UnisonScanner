@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceActivity;
 import android.support.annotation.BinderThread;
 import android.support.v7.app.ActionBarActivity;
@@ -76,12 +78,45 @@ public class BinActivity extends HeaderActivity {
             }
         });
 
-        if(Utilities.isNetworkAvailable(BinActivity.this)) {
-            new loadBins(this).execute(Integer.toString(Utilities.currentContext.locationId));
+//        Handler h = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//
+//                if (msg.what != 1) { // code if not connected
+//                    GetBinsDB();
+//                } else { // code if connected
+//                    new loadBins(BinActivity.this).execute(Integer.toString(Utilities.currentContext.locationId));
+//                }
+//            }
+//        };
+//        ConnectUtilities.isNetworkAvailable(h,2000);
+
+//        if (ConnectUtilities.isNetworkAvailable(BinActivity.this)) {
+//            new loadBins(this).execute(Integer.toString(Utilities.currentContext.locationId));
+//        }
+//        else
+//        {
+//            GetBinsDB();
+//        }
+        new checkConnectionTask().execute();
+    }
+
+    private class checkConnectionTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(BinActivity.this);
         }
-        else
-        {
-            GetBinsDB();
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                new loadBins(BinActivity.this).execute(Integer.toString(Utilities.currentContext.locationId));
+            }
+            else
+            {
+                GetBinsDB();
+            }
         }
     }
 

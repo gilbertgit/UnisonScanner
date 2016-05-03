@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -145,15 +147,25 @@ public class OrganizationActivity extends HeaderActivity
         checkStock.setChecked(settings.getBoolean("usesStock", false));
         checkStock.setOnCheckedChangeListener(new myCheckBoxChangeClicker());
 
+        new checkConnectionAndGetOrgTask().execute();
+    }
 
-        if(Utilities.isNetworkAvailable(OrganizationActivity.this)) {
-            new loadOrganizations().execute();
+    private class checkConnectionAndGetOrgTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(OrganizationActivity.this);
         }
-        else
-        {
-            GetOrganizationsDB();
-            Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
-            Toast.makeText(getApplicationContext(), "Please check internet connection.", Toast.LENGTH_SHORT).show();
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                new loadOrganizations().execute();
+            }
+            else
+            {
+                GetOrganizationsDB();
+            }
         }
     }
 

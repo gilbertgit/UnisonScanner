@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
@@ -69,6 +70,7 @@ public class LoginActivity extends ActionBarActivity {
     private EMDKManager emdkManager = null;
     ProfileConfig profileConfig = null;
     private DBHelper dbHelper;
+    String pin = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,7 +226,7 @@ public class LoginActivity extends ActionBarActivity {
         } else if (imageEntry4.getTag() == null) {
             imageEntry4.setTag(tag);
             imageEntry4.setImageResource(R.drawable.yes_pin);
-            String pin = (String) imageEntry1.getTag() + (String) imageEntry2.getTag() + (String) imageEntry3.getTag() + tag;
+            pin = (String) imageEntry1.getTag() + (String) imageEntry2.getTag() + (String) imageEntry3.getTag() + tag;
 
             if (isAdmin) {
                 if (pin.equals(getString(R.string.admin_password))) {
@@ -240,11 +242,58 @@ public class LoginActivity extends ActionBarActivity {
                 }
             }
 
-            if (Utilities.isNetworkAvailable(LoginActivity.this)) {
-                // Authenticate the user
+//            Handler h = new Handler() {
+//                @Override
+//                public void handleMessage(Message msg) {
+//
+//                    if (msg.what != 1) { // code if not connected
+//                        if (dbHelper.isUserStored(pin)) {
+//                            getStoredUser(pin);
+//                            Intent i = new Intent(LoginActivity.this, LocationActivity.class);
+//                            startActivity(i);
+//                        } else {
+//                            YoyoPin();
+//                            Toast.makeText(getApplicationContext(), "User not stored.", Toast.LENGTH_LONG).show();
+//                        }
+//                    } else { // code if connected
+//                        new LoginTask().execute(Integer.toString(organizationId), pin);
+//                    }
+//                }
+//            };
+//            ConnectUtilities.isNetworkAvailable(h,2000);
+
+//            if (ConnectUtilities.hasInternetAccess(LoginActivity.this)) {
+//                // Authenticate the user
+//                new LoginTask().execute(Integer.toString(organizationId), pin);
+//            } else {
+//                // Local Authentication
+//                if (dbHelper.isUserStored(pin)) {
+//                    getStoredUser(pin);
+//                    Intent i = new Intent(LoginActivity.this, LocationActivity.class);
+//                    startActivity(i);
+//                } else {
+//                    YoyoPin();
+//                    Toast.makeText(getApplicationContext(), "User not stored.", Toast.LENGTH_LONG).show();
+//                }
+//            }
+            new checkConnectionTask().execute();
+        }
+    }
+
+    private class checkConnectionTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(LoginActivity.this);
+        }
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
                 new LoginTask().execute(Integer.toString(organizationId), pin);
-            } else {
-                // Local Authentication
+            }
+            else
+            {
                 if (dbHelper.isUserStored(pin)) {
                     getStoredUser(pin);
                     Intent i = new Intent(LoginActivity.this, LocationActivity.class);

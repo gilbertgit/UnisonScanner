@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -113,21 +115,81 @@ public class PathActivity extends HeaderActivity
                 Utilities.currentContext.pathName = getResources().getString(R.string.no_path_item);
                 Utilities.currentContext.startPath = false;
 
-                if(Utilities.isNetworkAvailable(getApplicationContext()))
-                    new CheckIn().execute();
-                else {
-                    StoreVehicleCheckIn();
-                    //Toast.makeText(getApplicationContext(), "Please connect to internet.", Toast.LENGTH_SHORT).show();
-                }
+//                Handler h = new Handler() {
+//                    @Override
+//                    public void handleMessage(Message msg) {
+//
+//                        if (msg.what != 1) { // code if not connected
+//                            StoreVehicleCheckIn();
+//                        } else { // code if connected
+//                            new CheckIn().execute();
+//                        }
+//                    }
+//                };
+//                ConnectUtilities.isNetworkAvailable(h,2000);
+
+//                if (ConnectUtilities.isNetworkAvailable(getApplicationContext()))
+//                    new CheckIn().execute();
+//                else {
+//                    StoreVehicleCheckIn();
+//                    //Toast.makeText(getApplicationContext(), "Please connect to internet.", Toast.LENGTH_SHORT).show();
+//                }
+
+                new checkConnectionAndCheckInTask().execute();
             }
         });
 
-        if(Utilities.isNetworkAvailable(getApplicationContext())) {
-            new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
+//        Handler h = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//
+//                if (msg.what != 1) { // code if not connected
+//                    GetPathsDB();
+//                } else { // code if connected
+//                    new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
+//                }
+//            }
+//        };
+//        ConnectUtilities.isNetworkAvailable(h,2000);
+new checkConnectionAndGetPathTask().execute();
+
+    }
+
+    private class checkConnectionAndCheckInTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(PathActivity.this);
         }
-        else
-        {
-            GetPathsDB();
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                new CheckIn().execute();
+            }
+            else
+            {
+                StoreVehicleCheckIn();
+            }
+        }
+    }
+
+    private class checkConnectionAndGetPathTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(PathActivity.this);
+        }
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
+            }
+            else
+            {
+                GetPathsDB();
+            }
         }
     }
 

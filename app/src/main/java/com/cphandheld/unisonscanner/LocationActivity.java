@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -75,14 +77,45 @@ public class LocationActivity extends HeaderActivity
             }
         });
 
-        if(Utilities.isNetworkAvailable(LocationActivity.this)) {
-            new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+//        Handler h = new Handler() {
+//            @Override
+//            public void handleMessage(Message msg) {
+//
+//                if (msg.what != 1) { // code if not connected
+//                    GetLocationsDB();
+//                } else { // code if connected
+//                    new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+//                }
+//            }
+//        };
+//        ConnectUtilities.isNetworkAvailable(h,2000);
+
+//        if (ConnectUtilities.isNetworkAvailable(LocationActivity.this)) {
+//            new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+//        }
+//        else
+//        {
+//            GetLocationsDB();
+//        }
+        new checkConnectionTask().execute();
+    }
+
+    private class checkConnectionTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(LocationActivity.this);
         }
-        else
-        {
-            GetLocationsDB();
-            //Toast.makeText(getApplicationContext(), "Cached data loaded.", Toast.LENGTH_SHORT).show();
-            //Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
+            }
+            else
+            {
+                GetLocationsDB();
+            }
         }
     }
 
@@ -135,9 +168,11 @@ public class LocationActivity extends HeaderActivity
                     for (int i=0; i<listLocations.getCount(); i++)
                     {
                         View view = listLocations.getChildAt(i);
-                        TextView textView = (TextView) view.findViewById(R.id.rowTextView);
-                        textView.setTextColor(getResources().getColor(R.color.colorListTextUnselected));
-                        view.setBackgroundColor(getResources().getColor(R.color.colorListBgUnselected));
+                        if(view != null) {
+                            TextView textView = (TextView) view.findViewById(R.id.rowTextView);
+                            textView.setTextColor(getResources().getColor(R.color.colorListTextUnselected));
+                            view.setBackgroundColor(getResources().getColor(R.color.colorListBgUnselected));
+                        }
                     }
                 }
             }

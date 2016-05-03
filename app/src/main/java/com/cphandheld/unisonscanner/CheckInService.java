@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -94,13 +95,27 @@ public class CheckInService extends Service {
             dbHelper.getWritableDatabase();
             setupNotifications();
             showNotification();
-            //showNotification();
+
+//            if(ConnectUtilities.isNetworkAvailable(getApplicationContext())) {
+//                Handler h = new Handler() {
+//                    @Override
+//                    public void handleMessage(Message msg) {
+//
+//                        if (msg.what != 1) { // code if not connected
+//
+//                        } else { // code if connected
+//                            new CheckIn().execute();
+//                        }
+//                    }
+//                };
+//                ConnectUtilities.isNetworkAvailable(h, 3000);
+//            }
+
             mRunnable = new Runnable() {
                 @Override
                 public void run() {
 
-                    if(Utilities.isNetworkAvailable(getApplicationContext()))
-                        new CheckIn().execute();
+                    new checkConnectionTask().execute();
 
                     mHandler.postDelayed(mRunnable, 3000);
                 }
@@ -110,6 +125,20 @@ public class CheckInService extends Service {
 
         return super.onStartCommand(intent, flags, startId);
     }
+
+    private class checkConnectionTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            return ConnectUtilities.hasInternetAccess(getApplicationContext());
+        }
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result)
+                new CheckIn().execute();
+        }
+    }
+
 
     private String[] GetCheckIns()
     {
