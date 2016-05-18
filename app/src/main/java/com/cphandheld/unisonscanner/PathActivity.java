@@ -115,42 +115,10 @@ public class PathActivity extends HeaderActivity
                 Utilities.currentContext.pathName = getResources().getString(R.string.no_path_item);
                 Utilities.currentContext.startPath = false;
 
-//                Handler h = new Handler() {
-//                    @Override
-//                    public void handleMessage(Message msg) {
-//
-//                        if (msg.what != 1) { // code if not connected
-//                            StoreVehicleCheckIn();
-//                        } else { // code if connected
-//                            new CheckIn().execute();
-//                        }
-//                    }
-//                };
-//                ConnectUtilities.isNetworkAvailable(h,2000);
-
-//                if (ConnectUtilities.isNetworkAvailable(getApplicationContext()))
-//                    new CheckIn().execute();
-//                else {
-//                    StoreVehicleCheckIn();
-//                    //Toast.makeText(getApplicationContext(), "Please connect to internet.", Toast.LENGTH_SHORT).show();
-//                }
-
                 new checkConnectionAndCheckInTask().execute();
             }
         });
 
-//        Handler h = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//
-//                if (msg.what != 1) { // code if not connected
-//                    GetPathsDB();
-//                } else { // code if connected
-//                    new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
-//                }
-//            }
-//        };
-//        ConnectUtilities.isNetworkAvailable(h,2000);
 new checkConnectionAndGetPathTask().execute();
 
     }
@@ -341,7 +309,7 @@ new checkConnectionAndGetPathTask().execute();
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
-                    dbHelper.clearPathTable();
+                    //dbHelper.clearPathTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 

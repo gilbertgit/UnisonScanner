@@ -115,6 +115,15 @@ public class LoginActivity extends ActionBarActivity {
         getApplicationContext().startService(serviceIntent);
     }
 
+    @Override
+    protected void onResume() {
+// TODO Auto-generated method stub
+        super.onResume();
+        SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
+        Utilities.currentContext.organizationId = settings.getInt("orgId", -1);
+        organizationName = settings.getString("orgName", "");
+    }
+
     protected void setClickEvents() {
         imageButton1 = (ImageView) findViewById(R.id.button1);
         imageButton1.setOnClickListener(new View.OnClickListener() {
@@ -242,40 +251,6 @@ public class LoginActivity extends ActionBarActivity {
                 }
             }
 
-//            Handler h = new Handler() {
-//                @Override
-//                public void handleMessage(Message msg) {
-//
-//                    if (msg.what != 1) { // code if not connected
-//                        if (dbHelper.isUserStored(pin)) {
-//                            getStoredUser(pin);
-//                            Intent i = new Intent(LoginActivity.this, LocationActivity.class);
-//                            startActivity(i);
-//                        } else {
-//                            YoyoPin();
-//                            Toast.makeText(getApplicationContext(), "User not stored.", Toast.LENGTH_LONG).show();
-//                        }
-//                    } else { // code if connected
-//                        new LoginTask().execute(Integer.toString(organizationId), pin);
-//                    }
-//                }
-//            };
-//            ConnectUtilities.isNetworkAvailable(h,2000);
-
-//            if (ConnectUtilities.hasInternetAccess(LoginActivity.this)) {
-//                // Authenticate the user
-//                new LoginTask().execute(Integer.toString(organizationId), pin);
-//            } else {
-//                // Local Authentication
-//                if (dbHelper.isUserStored(pin)) {
-//                    getStoredUser(pin);
-//                    Intent i = new Intent(LoginActivity.this, LocationActivity.class);
-//                    startActivity(i);
-//                } else {
-//                    YoyoPin();
-//                    Toast.makeText(getApplicationContext(), "User not stored.", Toast.LENGTH_LONG).show();
-//                }
-//            }
             new checkConnectionTask().execute();
         }
     }
@@ -294,7 +269,7 @@ public class LoginActivity extends ActionBarActivity {
             }
             else
             {
-                if (dbHelper.isUserStored(pin)) {
+                if (dbHelper.isUserStored(pin, String.valueOf(organizationId))) {
                     getStoredUser(pin);
                     Intent i = new Intent(LoginActivity.this, LocationActivity.class);
                     startActivity(i);
@@ -318,7 +293,7 @@ public class LoginActivity extends ActionBarActivity {
                 int userId = c.getInt(userIdIndex);
 
                 Utilities.currentUser = new User();
-                Utilities.currentUser.organizationId = organizationId;
+                //Utilities.currentUser.organizationId = organizationId;
                 Utilities.currentUser.userId = userId;
                 Utilities.currentUser.name = name;
 
@@ -505,7 +480,7 @@ public class LoginActivity extends ActionBarActivity {
                     Utilities.currentContext = new CurrentContext();
                     Utilities.currentContext.organizationId = organizationId;
 
-                    if (!dbHelper.isUserStored(pin)) {
+                    if (!dbHelper.isUserStored(pin, String.valueOf(organizationId))) {
                         dbHelper.insertUser(responseData.getInt("UserId"), Integer.parseInt(pin), organizationId, responseData.getString("Name"));
                     }
                     return true;

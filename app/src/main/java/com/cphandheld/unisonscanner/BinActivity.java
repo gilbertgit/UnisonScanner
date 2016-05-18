@@ -182,7 +182,7 @@ public class BinActivity extends HeaderActivity {
 
     public void GetBinsDB()
     {
-        Cursor c = dbHelper.getBins();
+        Cursor c = dbHelper.getBins(Utilities.currentContext.locationId);
         bins = new ArrayList(c.getCount());
 
         if (c.moveToFirst()) {
@@ -254,7 +254,7 @@ public class BinActivity extends HeaderActivity {
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if (connection.getResponseCode() == 200) {
-                    dbHelper.clearBinTable();
+                    //dbHelper.clearBinTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
@@ -266,7 +266,7 @@ public class BinActivity extends HeaderActivity {
                         int binId = temp.getInt("BinId");
 
                         // insert into database table Bin
-                        dbHelper.insertBin(binId, name);
+                        dbHelper.insertBin(binId, name, Utilities.currentContext.locationId);
                     }
                 }
             } catch (JSONException | IOException e) {

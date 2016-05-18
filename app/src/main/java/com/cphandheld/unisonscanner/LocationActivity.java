@@ -77,26 +77,6 @@ public class LocationActivity extends HeaderActivity
             }
         });
 
-//        Handler h = new Handler() {
-//            @Override
-//            public void handleMessage(Message msg) {
-//
-//                if (msg.what != 1) { // code if not connected
-//                    GetLocationsDB();
-//                } else { // code if connected
-//                    new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
-//                }
-//            }
-//        };
-//        ConnectUtilities.isNetworkAvailable(h,2000);
-
-//        if (ConnectUtilities.isNetworkAvailable(LocationActivity.this)) {
-//            new loadLocations().execute(Integer.toString(Utilities.currentUser.organizationId));
-//        }
-//        else
-//        {
-//            GetLocationsDB();
-//        }
         new checkConnectionTask().execute();
     }
 
@@ -181,7 +161,7 @@ public class LocationActivity extends HeaderActivity
 
     public void GetLocationsDB()
     {
-        Cursor c = dbHelper.getLocations();
+        Cursor c = dbHelper.getLocations(Utilities.currentContext.organizationId);
         locs = new ArrayList(c.getCount());
 
         if (c.moveToFirst()) {
@@ -238,7 +218,7 @@ public class LocationActivity extends HeaderActivity
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
-                    dbHelper.clearLocationTable();
+                    //dbHelper.clearLocationTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
@@ -248,7 +228,7 @@ public class LocationActivity extends HeaderActivity
 
                         JSONObject temp = responseData.getJSONObject(i);
 
-                        dbHelper.insertLocation(temp.getInt("LocationId"), temp.getString("Title"));
+                        dbHelper.insertLocation(temp.getInt("LocationId"), temp.getString("Title"), Utilities.currentContext.organizationId);
                     }
                 }
             } catch (JSONException | IOException e) {

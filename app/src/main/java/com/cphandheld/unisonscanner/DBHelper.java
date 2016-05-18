@@ -44,6 +44,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String BIN_TABLE_NAME = "bins";
     public static final String BIN_COLUMN_BIN_ID = "binId";
     public static final String BIN_COLUMN_NAME = "name";
+    public static final String BIN_COLUMN_LOCATION_ID = "locationId";
 
     public static final String PATH_COLUMN_ID = "id";
     public static final String PATH_TABLE_NAME = "paths";
@@ -62,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String LOCATION_TABLE_NAME = "locations";
     public static final String LOCATION_COLUMN_LOCATION_ID = "locationId";
     public static final String LOCATION_COLUMN_NAME = "name";
+    public static final String LOCATION_COLUMN_ORGANIZATION_ID = "organizationId";
 
     public static final String ORGANIZATION_TABLE_NAME = "organizations";
     public static final String ORGANIZATION_COLUMN_ORGANIZATION_ID = "organizationId";
@@ -82,10 +84,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + VEHICLE_ENTRY_TABLE_NAME + " (id integer primary key autoincrement, data text)");
         db.execSQL("create table " + VEHICLE_TABLE_NAME + " (id integer primary key, vin text, year text, make text, model text, color text)");
-        db.execSQL("create table " + BIN_TABLE_NAME + " ( id INTEGER PRIMARY KEY autoincrement, binId TEXT, name TEXT)");
-        db.execSQL("create table " + PATH_TABLE_NAME + " (id integer primary key, pathId text, name text, startPath text, locationId text)");
+        db.execSQL("create table " + BIN_TABLE_NAME + " ( binId integer primary key, name TEXT, locationId TEXT)");
+        db.execSQL("create table " + PATH_TABLE_NAME + " (pathId integer primary key, name text, startPath text, locationId text)");
         db.execSQL("create table " + USER_TABLE_NAME + " (userId integer primary key, pin text, organizationId text, name text)");
-        db.execSQL("create table " + LOCATION_TABLE_NAME + " ( id integer primary key autoincrement, locationId text, name text)");
+        db.execSQL("create table " + LOCATION_TABLE_NAME + " ( locationId integer primary key, name text, organizationId text)");
         db.execSQL("create table " + ORGANIZATION_TABLE_NAME + " ( id integer primary key autoincrement, organizationId text, name text)");
     }
 
@@ -127,14 +129,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean insertBin(int binId, String name)
+    public boolean insertBin(int binId, String name, int locationId)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(BIN_COLUMN_BIN_ID, binId);
         contentValues.put(BIN_COLUMN_NAME, name);
+        contentValues.put(BIN_COLUMN_LOCATION_ID, locationId);
 
-        db.insert(BIN_TABLE_NAME, null, contentValues);
+        //db.insert(BIN_TABLE_NAME, null, contentValues);
+        db.insertWithOnConflict(BIN_TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
         return true;
     }
 
@@ -147,7 +151,8 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(PATH_COLUMN_START_PATH, startPath);
         contentValues.put(PATH_COLUMN_LOCATION_ID, locationId);
 
-        db.insert(PATH_TABLE_NAME, null, contentValues);
+        //db.insert(PATH_TABLE_NAME, null, contentValues);
+        db.insertWithOnConflict(PATH_TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
         return true;
     }
 
@@ -165,14 +170,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean insertLocation(int locationId, String name)
+    public boolean insertLocation(int locationId, String name, int organizationId)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(LOCATION_COLUMN_LOCATION_ID, locationId);
         contentValues.put(LOCATION_COLUMN_NAME, name);
+        contentValues.put(LOCATION_COLUMN_ORGANIZATION_ID, organizationId);
 
-        db.insert(LOCATION_TABLE_NAME, null, contentValues);
+        //db.insert(LOCATION_TABLE_NAME, null, contentValues);
+        db.insertWithOnConflict(LOCATION_TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
         return true;
     }
 
@@ -259,21 +266,21 @@ public class DBHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public Cursor getBins(){
+    public Cursor getBins(int locationId){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from " + BIN_TABLE_NAME , null );
+        Cursor res =  db.rawQuery( "select * from " + BIN_TABLE_NAME  + " where locationId=?", new String[] {String.valueOf(locationId)} );
         return res;
     }
 
     public Cursor getPaths(int locationId){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from " + PATH_TABLE_NAME + " where locationId="+String.valueOf(locationId)+"", null );
+        Cursor res =  db.rawQuery( "select * from " + PATH_TABLE_NAME + " where locationId=?", new String[] {String.valueOf(locationId)} );
         return res;
     }
 
-    public Cursor getLocations(){
+    public Cursor getLocations(int organizationId){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from " + LOCATION_TABLE_NAME , null );
+        Cursor res =  db.rawQuery( "select * from " + LOCATION_TABLE_NAME+ " where organizationId=?", new String[] {String.valueOf(organizationId)} );
         return res;
     }
 
@@ -289,14 +296,14 @@ public class DBHelper extends SQLiteOpenHelper {
         return c;
     }
 
-    public boolean isUserStored(String pin) {
+    public boolean isUserStored(String pin, String orgId) {
         Cursor c = null;
         SQLiteDatabase db = this.getReadableDatabase();
         boolean result = false;
         try {
 
-            String query = "select count(*) from " + USER_TABLE_NAME + " where pin = ?";
-            c = db.rawQuery(query, new String[] {pin});
+            String query = "select count(*) from " + USER_TABLE_NAME + " where pin = ? and organizationid = ?";
+            c = db.rawQuery(query, new String[] {pin, orgId});
             if (c.moveToFirst()) {
                 if(c.getInt(0) != 0)
                     result = true;
