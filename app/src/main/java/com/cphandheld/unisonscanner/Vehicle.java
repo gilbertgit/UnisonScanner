@@ -1,6 +1,7 @@
 package com.cphandheld.unisonscanner;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by Supernova on 2/24/2016.
@@ -13,6 +14,8 @@ public class Vehicle implements Serializable
     String Model;
     String Color;
     String Stock;
+    String ScannedDate;
+
 
     Vehicle() {
     }

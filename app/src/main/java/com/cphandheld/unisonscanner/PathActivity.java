@@ -35,8 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class PathActivity extends HeaderActivity
-{
+public class PathActivity extends HeaderActivity {
     TextView textVIN;
     TextView textBin;
     ListView listPaths;
@@ -50,8 +49,7 @@ public class PathActivity extends HeaderActivity
     private DBHelper dbHelper;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_path);
         setHeader(R.color.colorPathHeader, Utilities.currentUser.name, Utilities.currentContext.locationName, R.string.path_header);
@@ -73,11 +71,9 @@ public class PathActivity extends HeaderActivity
         textBin.setText(Utilities.currentContext.binName.toUpperCase());
 
         listPaths = (ListView) findViewById(R.id.listPaths);
-        listPaths.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+        listPaths.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView textView = (TextView) view.findViewById(R.id.rowTextView);
                 textView.setTextColor(getResources().getColor(R.color.colorPathTextSelected));
                 view.setBackgroundColor(getResources().getColor(R.color.colorPathBgSelected));
@@ -119,7 +115,7 @@ public class PathActivity extends HeaderActivity
             }
         });
 
-new checkConnectionAndGetPathTask().execute();
+        new checkConnectionAndGetPathTask().execute();
 
     }
 
@@ -129,14 +125,12 @@ new checkConnectionAndGetPathTask().execute();
         protected Boolean doInBackground(String... params) {
             return ConnectUtilities.hasInternetAccess(PathActivity.this);
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
-            if(result)
-            {
+            if (result) {
                 new CheckIn().execute();
-            }
-            else
-            {
+            } else {
                 StoreVehicleCheckIn();
             }
         }
@@ -148,21 +142,18 @@ new checkConnectionAndGetPathTask().execute();
         protected Boolean doInBackground(String... params) {
             return ConnectUtilities.hasInternetAccess(PathActivity.this);
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
-            if(result)
-            {
+            if (result) {
                 new loadPaths().execute(Integer.toString(Utilities.currentContext.locationId));
-            }
-            else
-            {
+            } else {
                 GetPathsDB();
             }
         }
     }
 
-    private void StoreVehicleCheckIn()
-    {
+    private void StoreVehicleCheckIn() {
         CheckInPost cip = new CheckInPost();
         cip.Action = "MOVEBIN";
         cip.LocationId = Utilities.currentContext.locationId;
@@ -172,6 +163,7 @@ new checkConnectionAndGetPathTask().execute();
         cip.UserId = Utilities.currentUser.userId;
         cip.StartPath = Utilities.currentContext.startPath;
         cip.Vehicle = Utilities.currentContext.vehicle;
+        cip.ScannedDate = Utilities.currentContext.scannedDate;
 
         Gson gson = new Gson();
         String json = gson.toJson(cip);
@@ -208,29 +200,23 @@ new checkConnectionAndGetPathTask().execute();
         }
     }
 
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         Intent i = new Intent(PathActivity.this, BinActivity.class);
         i.putExtra("back", true);
         setResult(RESULT_OK, i);
         finish();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1)
-        {
-            if (resultCode == RESULT_OK)
-            {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
                 Boolean backPress = data.getBooleanExtra("back", false);
 
-                if(backPress)
-                {
+                if (backPress) {
                     listPaths.clearChoices();
 
-                    for (int i=0; i<listPaths.getCount(); i++)
-                    {
+                    for (int i = 0; i < listPaths.getCount(); i++) {
                         View view = listPaths.getChildAt(i);
                         TextView textView = (TextView) view.findViewById(R.id.rowTextView);
                         textView.setTextColor(getResources().getColor(R.color.colorListTextUnselected));
@@ -241,8 +227,7 @@ new checkConnectionAndGetPathTask().execute();
         }
     }
 
-    public void GetPathsDB()
-    {
+    public void GetPathsDB() {
         Cursor c = dbHelper.getPaths(Utilities.currentContext.locationId);
         paths = new ArrayList(c.getCount());
 
@@ -275,8 +260,7 @@ new checkConnectionAndGetPathTask().execute();
         }
     }
 
-    private class loadPaths extends AsyncTask<String, Void, Void>
-    {
+    private class loadPaths extends AsyncTask<String, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -308,7 +292,7 @@ new checkConnectionAndGetPathTask().execute();
                 connection = (HttpURLConnection) url.openConnection();
                 isr = new InputStreamReader(connection.getInputStream());
 
-                if(connection.getResponseCode() == 200) {
+                if (connection.getResponseCode() == 200) {
                     //dbHelper.clearPathTable();
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
@@ -327,14 +311,12 @@ new checkConnectionAndGetPathTask().execute();
         }
     }
 
-    private class Path
-    {
+    private class Path {
         private String name;
         private int pathId;
         private boolean startPath;
 
-        public Path()
-        {
+        public Path() {
 
         }
 
@@ -394,6 +376,7 @@ new checkConnectionAndGetPathTask().execute();
                 cip.StartPath = Utilities.currentContext.startPath;
                 cip.Vehicle = Utilities.currentContext.vehicle;
                 cip.Vehicle.Stock = Utilities.currentContext.Stock;
+                cip.ScannedDate = Utilities.currentContext.scannedDate;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -443,7 +426,7 @@ new checkConnectionAndGetPathTask().execute();
         int UserId;
         boolean StartPath;
         Vehicle Vehicle;
-
+        String ScannedDate;
 
 
         CheckInPost() {

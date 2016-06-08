@@ -62,9 +62,9 @@ public class LocationActivity extends HeaderActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                TextView textView = (TextView) view.findViewById(R.id.rowTextView);
-                textView.setTextColor(getResources().getColor(R.color.colorLocTextSelected));
-                view.setBackgroundColor(getResources().getColor(R.color.colorLocBgSelected));
+                //TextView textView = (TextView) view.findViewById(R.id.rowTextView);
+                //textView.setTextColor(getResources().getColor(R.color.colorLocTextSelected));
+                //view.setBackgroundColor(getResources().getColor(R.color.colorLocBgSelected));
 
                 Locations loc = (Locations)locs.get(position);
                 int locId = loc.locationId;
@@ -135,28 +135,28 @@ public class LocationActivity extends HeaderActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1)
-        {
-            if (resultCode == RESULT_OK)
-            {
-                Boolean backPress = data.getBooleanExtra("back", false);
-
-                if(backPress)
-                {
-                    listLocations.clearChoices();
-
-                    for (int i=0; i<listLocations.getCount(); i++)
-                    {
-                        View view = listLocations.getChildAt(i);
-                        if(view != null) {
-                            TextView textView = (TextView) view.findViewById(R.id.rowTextView);
-                            textView.setTextColor(getResources().getColor(R.color.colorListTextUnselected));
-                            view.setBackgroundColor(getResources().getColor(R.color.colorListBgUnselected));
-                        }
-                    }
-                }
-            }
-        }
+//        if (requestCode == 1)
+//        {
+//            if (resultCode == 5)
+//            {
+//                Boolean backPress = data.getBooleanExtra("back", false);
+//
+//                if(backPress)
+//                {
+//                    listLocations.clearChoices();
+//
+//                    for (int i=0; i<listLocations.getCount(); i++)
+//                    {
+//                        View view = listLocations.getChildAt(i);
+//                        if(view != null) {
+//                            TextView textView = (TextView) view.findViewById(R.id.rowTextView);
+//                            textView.setTextColor(getResources().getColor(R.color.colorListTextUnselected));
+//                            view.setBackgroundColor(getResources().getColor(R.color.colorListBgUnselected));
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 
     public void GetLocationsDB()

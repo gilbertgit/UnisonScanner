@@ -96,7 +96,7 @@ public class OrganizationActivity extends HeaderActivity
                 if(appUrl.equals("http://unison-dev.cphandheld.com/")) {
                     // change it to Unison 1.0 database
                     textUrl.setText("UNISON 1.0");
-                    appUrl = "http://unison.cphandheld.com/";
+                    appUrl = "http://unison-stage.cphandheld.com/";
                 }
                 else {
                     // change it to Unison 2.0 database

@@ -20,6 +20,7 @@ public class CurrentContext implements Serializable
     String notes;
     VehicleTicket vehicleTicket;
     String Stock;
+    String scannedDate;
 
     CurrentContext() {
     }

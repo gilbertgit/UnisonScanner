@@ -56,7 +56,8 @@
             android:name=".LocationActivity"
             android:label="LocationActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask">
         </activity>
         <activity
             android:name=".ScanActivity"

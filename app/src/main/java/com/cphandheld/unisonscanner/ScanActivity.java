@@ -1,6 +1,7 @@
 package com.cphandheld.unisonscanner;
 
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.format.Time;
 import android.view.MotionEvent;
 import android.widget.TextView;
 import android.os.AsyncTask;
@@ -22,10 +24,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.symbol.emdk.*;
 import com.symbol.emdk.EMDKManager;
 import com.symbol.emdk.EMDKManager.EMDKListener;
 import com.symbol.emdk.EMDKResults;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -37,6 +43,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class ScanActivity extends HeaderActivity implements EMDKListener {
@@ -51,6 +60,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     boolean procError = false;
     boolean usesStock;
     boolean isVerifyingVin = false;
+    boolean receiverRemoved = false;
 
     private ProgressDialog mProgressDialog;
 
@@ -133,9 +143,14 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             textStatus.setText("");
 
                             Utilities.currentContext.vehicle = new Vehicle();
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
+                            String currentDateTime = sdf.format(new Date());
+
+                            Utilities.currentContext.scannedDate = currentDateTime;
                             Utilities.currentContext.vehicle.VIN = barcode;
 
-                            if(!isVerifyingVin) {
+                            if (!isVerifyingVin) {
                                 isVerifyingVin = true;
                                 new checkConnectionAndVerifyTask().execute(barcode);
                             }
@@ -146,24 +161,24 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         };
         //Register our receiver.
         this.registerReceiver(EMDKReceiver, intentFilter);
+        receiverRemoved = false;
     }
 
     private class checkConnectionAndVerifyTask extends AsyncTask<String, Void, Boolean> {
         String barcode = "";
+
         @Override
         protected Boolean doInBackground(String... params) {
             barcode = params[0];
             return ConnectUtilities.hasInternetAccess(ScanActivity.this);
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
-            if(result)
-            {
+            if (result) {
                 mProgressDialog.show();
                 new VerifyVehicleTask().execute(barcode);
-            }
-            else
-            {
+            } else {
                 Utilities.currentContext.vehicle.Make = "";
                 Utilities.currentContext.vehicle.Model = "";
                 Utilities.currentContext.vehicle.Color = "";
@@ -202,10 +217,15 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
     public void onBackPressed() {
         onClosed();
-
+        this.unregisterReceiver(EMDKReceiver);
+        receiverRemoved = true;
         Intent i = new Intent(ScanActivity.this, LocationActivity.class);
         i.putExtra("back", true);
-        setResult(RESULT_OK, i);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        setResult(5, i);
+
+        //startActivityForResult(i, RESULT_OK);
         finish();
     }
 
@@ -259,7 +279,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         super.onPause();
 
         //Register our receiver.
-        this.unregisterReceiver(this.EMDKReceiver);
+        if (!receiverRemoved)
+            this.unregisterReceiver(this.EMDKReceiver);
     }
 
     @Override
@@ -288,8 +309,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 if (locationMatch) {
                     onClosed();
                     Intent i;
-                    if(usesStock)
-                        i=  new Intent(ScanActivity.this, StockActivity.class);
+                    if (usesStock)
+                        i = new Intent(ScanActivity.this, StockActivity.class);
                     else
                         i = new Intent(ScanActivity.this, BinActivity.class);
 
@@ -378,13 +399,13 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                         Utilities.currentContext.vehicle.Make = veh.getString("Make");
                         Utilities.currentContext.vehicle.Model = veh.getString("Model");
 
-                        if(veh.getString("Color") == "" || veh.getString("Color") == "null")
+                        if (veh.getString("Color") == "" || veh.getString("Color") == "null")
                             Utilities.currentContext.vehicle.Color = null;
                         else
                             Utilities.currentContext.vehicle.Color = veh.getString("Color");
                         Utilities.currentContext.binId = responseData.getInt("BinId");
 
-                        if(veh.getString("Stock") == "null")
+                        if (veh.getString("Stock") == "null")
                             Utilities.currentContext.Stock = "";
                         else
                             Utilities.currentContext.Stock = veh.getString("Stock");

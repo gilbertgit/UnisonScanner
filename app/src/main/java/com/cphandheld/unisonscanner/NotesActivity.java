@@ -119,6 +119,7 @@ public class NotesActivity extends HeaderActivity {
         cip.StartPath = Utilities.currentContext.startPath;
         cip.Vehicle = Utilities.currentContext.vehicle;
         cip.Vehicle.Stock = Utilities.currentContext.Stock;
+        cip.ScannedDate = Utilities.currentContext.scannedDate;
 
         Gson gson = new Gson();
         String json = gson.toJson(cip);
@@ -182,6 +183,7 @@ public class NotesActivity extends HeaderActivity {
                 cip.UserId = Utilities.currentUser.userId;
                 cip.StartPath = Utilities.currentContext.startPath;
                 cip.Vehicle = Utilities.currentContext.vehicle;
+                cip.ScannedDate = Utilities.currentContext.scannedDate;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -232,6 +234,7 @@ public class NotesActivity extends HeaderActivity {
         boolean StartPath;
         Vehicle Vehicle;
         String Stock;
+        String ScannedDate;
 
 
         CheckInPost() {
