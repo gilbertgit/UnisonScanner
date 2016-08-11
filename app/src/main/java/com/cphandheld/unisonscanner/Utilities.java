@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -49,7 +50,7 @@ public class Utilities {
 
     public static User currentUser = new User();
     public static CurrentContext currentContext = new CurrentContext();
-
+    public static String scannerSN = "";
     public static String StreamToString(InputStreamReader isr) throws IOException
     {
         BufferedReader bufferedReader = new BufferedReader( isr);

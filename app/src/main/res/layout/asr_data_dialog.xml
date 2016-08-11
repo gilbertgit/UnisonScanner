@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
+
+    <TextView
+        android:id="@+id/textComments"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginLeft="10dp"
+        android:paddingTop="5dp"
+        android:text="Comments:"/>
+
+    <EditText
+        android:id="@+id/editComments"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_toRightOf="@+id/textComments"
+        android:layout_marginLeft="10dp"/>
+
+
+    <TextView
+        android:id="@+id/textLabor"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:paddingTop="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/textComments"
+        android:text="Hours:"/>
+
+    <EditText
+        android:id="@+id/editLabor"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/textComments"
+        android:layout_toRightOf="@+id/textComments"
+        android:layout_marginLeft="10dp"
+        android:inputType="number"
+        />
+
+    <TextView
+        android:id="@+id/textRate"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:paddingTop="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/textLabor"
+        android:text="Rate:"/>
+
+    <EditText
+        android:id="@+id/editRate"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/editLabor"
+        android:layout_toRightOf="@+id/textComments"
+        android:layout_marginLeft="10dp"
+        android:inputType="number"
+        />
+    <Button
+        android:id="@+id/buttonDialogCancel"
+        android:layout_width="100dp"
+        android:layout_height="36dp"
+        android:layout_below="@+id/editRate"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="Lato Regular"
+        android:background="@color/colorListTextUnselected"
+        android:textColor="@android:color/white"
+        android:text="CANCEL"
+        android:textSize="20sp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+    <Button
+    android:id="@+id/buttonDialogOK"
+    android:layout_width="100dp"
+    android:layout_height="36dp"
+    android:layout_below="@+id/editRate"
+    android:layout_alignParentRight="true"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp"
+    android:padding="5dp"
+    android:gravity="center_horizontal"
+    android:fontFamily="Lato Regular"
+    android:background="@color/colorCheckInButton"
+    android:textColor="@android:color/white"
+    android:text="OK"
+    android:textSize="20sp"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp"/>
+</RelativeLayout>

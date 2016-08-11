@@ -46,6 +46,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 public class ScanActivity extends HeaderActivity implements EMDKListener {
@@ -144,10 +145,14 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
                             Utilities.currentContext.vehicle = new Vehicle();
 
-                            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
-                            String currentDateTime = sdf.format(new Date());
+//                            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
+//                            String currentDateTime = sdf.format(new Date());
 
-                            Utilities.currentContext.scannedDate = currentDateTime;
+                            final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
+                            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            final String utcTime = sdf.format(new Date());
+
+                            Utilities.currentContext.scannedDate = utcTime;
                             Utilities.currentContext.vehicle.VIN = barcode;
 
                             if (!isVerifyingVin) {
@@ -217,8 +222,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
     public void onBackPressed() {
         onClosed();
-        this.unregisterReceiver(EMDKReceiver);
-        receiverRemoved = true;
+//        this.unregisterReceiver(EMDKReceiver);
+//        receiverRemoved = true;
         Intent i = new Intent(ScanActivity.this, LocationActivity.class);
         i.putExtra("back", true);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -278,9 +283,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     protected void onPause() {
         super.onPause();
 
-        //Register our receiver.
-        if (!receiverRemoved)
-            this.unregisterReceiver(this.EMDKReceiver);
+        this.unregisterReceiver(EMDKReceiver);
+        receiverRemoved = true;
     }
 
     @Override
@@ -294,7 +298,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     }
 
     private class VerifyVehicleTask extends AsyncTask<String, Void, Void> {
-
+        int ticketId = -1;
+        String scannedVin = "";
         @Override
         protected void onPreExecute() {
 
@@ -309,6 +314,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 if (locationMatch) {
                     onClosed();
                     Intent i;
+
                     if (usesStock)
                         i = new Intent(ScanActivity.this, StockActivity.class);
                     else
@@ -361,9 +367,10 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
             String result;
             validVin = true;
             procError = false;
+            scannedVin = vin;
 
             try {
-                String address = Utilities.AppURL + Utilities.VehicleInfoURL + vin;
+                String address = Utilities.AppURL + Utilities.VehicleInfoURL + vin;// + Utilities.VehicleTicketSuffix;
                 url = new URL(address);
 
 
@@ -372,9 +379,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 HttpResponse response = client.execute(request);
                 int code = response.getStatusLine().getStatusCode();
 
-
-//                    connection = (HttpURLConnection) url.openConnection();
-//                    int status = connection.getResponseCode();
                 if (code == 500) {
                     errorMessage = response.getStatusLine().getReasonPhrase();
                     isr = new InputStreamReader(response.getEntity().getContent());
@@ -394,7 +398,9 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                     Boolean success = responseData.getBoolean("Success");
 
                     if (success) {
+                        JSONObject ticket;
                         JSONObject veh = responseData.getJSONObject("Vehicle");
+
                         Utilities.currentContext.vehicle.Year = veh.getInt("Year");
                         Utilities.currentContext.vehicle.Make = veh.getString("Make");
                         Utilities.currentContext.vehicle.Model = veh.getString("Model");
@@ -426,6 +432,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 }
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
+                return false;
             }
 
             return false;

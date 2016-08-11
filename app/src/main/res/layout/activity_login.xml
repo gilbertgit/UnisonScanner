@@ -205,14 +205,15 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:text=""
         android:id="@+id/textVersion"
         android:textSize="12sp"
         android:textColor="@color/colorLoginFooter"
         android:layout_alignBottom="@+id/textView2"
-        android:layout_alignStart="@+id/logo"
+        android:layout_marginRight="5dp"
         android:layout_alignTop="@+id/textView2"
-        android:layout_marginLeft="190dp"
+
         />
 
 </RelativeLayout>

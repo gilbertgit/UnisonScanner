@@ -44,6 +44,33 @@
             </intent-filter>
 
         </activity>
+        <!--<activity-->
+            <!--android:name=".InspectionActivity"-->
+            <!--android:label="UnisonScanner"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/AppTheme.NoActionBar">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN"/>-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+
+                <!--<action android:name="com.cphandheld.unisonscanner.RECVRBI"/>-->
+                <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+        <activity
+        android:name=".InspectionActivity"
+        android:label="UnisonScanner"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".ASRActivity"
+            android:label="ASRActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask">
+        </activity>
         <!--
              ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.

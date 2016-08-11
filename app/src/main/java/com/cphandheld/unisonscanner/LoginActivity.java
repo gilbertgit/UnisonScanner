@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class LoginActivity extends ActionBarActivity {
     ProfileConfig profileConfig = null;
     private DBHelper dbHelper;
     String pin = "";
+    SharedPreferences.Editor prefEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +86,24 @@ public class LoginActivity extends ActionBarActivity {
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_FILE, 0);
+        prefEditor = settings.edit();
         organizationId = settings.getInt("orgId", -1);
         organizationName = settings.getString("orgName", "");
         Utilities.SetAppUrl(settings.getString("appUrl", ""));
+        Utilities.scannerSN = settings.getString("scannerSN", "");
+        if(Utilities.scannerSN.equals(""))
+        {
+            try {
+                Class<?> c = Class.forName("android.os.SystemProperties");
+                Method get = c.getMethod("get", String.class, String.class );
+                Utilities.scannerSN = (String)(   get.invoke(c, "ro.serialno", "unknown" )  );
+                prefEditor.putString("scannerSN", Utilities.scannerSN);
+                prefEditor.commit();
+            }
+            catch (Exception ignored)
+            {
+            }
+        }
 
         String versionName = com.cphandheld.unisonscanner.BuildConfig.VERSION_NAME;
         textVersion = (TextView) findViewById(R.id.textVersion);

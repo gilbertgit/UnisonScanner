@@ -218,7 +218,7 @@ public class LocationActivity extends HeaderActivity
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if(connection.getResponseCode() == 200) {
-                    //dbHelper.clearLocationTable();
+                    dbHelper.clearLocationTable(Utilities.currentContext.organizationId);
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 

@@ -17,9 +17,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -31,6 +34,8 @@ public class CheckInService extends Service {
     DBHelper dbHelper;
     String errorMessage;
     String checkInData;
+    String[] checkins;
+    List<Integer> checkinsToRemove;
 
     private static final int NOTIFICATION = 1009;
 
@@ -87,6 +92,7 @@ public class CheckInService extends Service {
 
 
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         final Handler mHandler = new Handler();
 
         if (!mRunning) {
@@ -134,8 +140,12 @@ public class CheckInService extends Service {
         }
         @Override
         protected void onPostExecute(Boolean result) {
-            if(result)
-                new CheckIn().execute();
+            if(result) {
+                checkins = GetCheckIns();
+                if (!checkins.equals(null) && checkins.length != 0) {
+                    new CheckIn().execute();
+                }
+            }
         }
     }
 
@@ -144,10 +154,12 @@ public class CheckInService extends Service {
     {
         Cursor c = dbHelper.getVehicleEntries();
         ArrayList<String> checkIns = new ArrayList<String>();
+        checkinsToRemove = new ArrayList<Integer>();
 
         if (c.moveToFirst()) {
             do {
                 checkIns.add(c.getString(c.getColumnIndex("data")));
+                checkinsToRemove.add(c.getInt(0));
 
             } while (c.moveToNext());
         }
@@ -157,18 +169,18 @@ public class CheckInService extends Service {
 
     }
 
-    private class CheckIn extends AsyncTask<String, Void, Void> {
+    private class CheckIn extends AsyncTask<String, Void, Boolean> {
         @Override
         protected void onPreExecute() {
              checkInData = "";
-            String[] data = GetCheckIns();
-            if (!data.equals(null) && data.length != 0) {
-                checkInData += "{CheckIns:[";
-                for (int i = 0; i < data.length; i++)
-                {
-                    checkInData += data[i];
 
-                    if(i != data.length-1)
+            if (!checkins.equals(null) && checkins.length != 0) {
+                checkInData += "{\"ScannerSerialNumber\":\"" + Utilities.scannerSN + "\",\"CheckIns\":[";
+                for (int i = 0; i < checkins.length; i++)
+                {
+                    checkInData += checkins[i];
+
+                    if(i != checkins.length-1)
                         checkInData += ",";
                 }
                 checkInData += "]}";
@@ -177,19 +189,28 @@ public class CheckInService extends Service {
         }
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected Boolean doInBackground(String... params) {
             errorMessage = "";
 
-            CheckInPost();
-
-            return null;
+            return CheckInPost();
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
-//
-//            if (!errorMessage.equals(""))
-//                Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_LONG).show();
+        protected void onPostExecute(Boolean result) {
+            if(result)
+            {
+                StringBuilder strbul  = new StringBuilder();
+                Iterator<Integer> iter = checkinsToRemove.iterator();
+                while(iter.hasNext())
+                {
+                    strbul.append(iter.next());
+                    if(iter.hasNext()){
+                        strbul.append(",");
+                    }
+                }
+                strbul.toString();
+                dbHelper.clearVehicleEntryTable(strbul.toString());
+            }
         }
 
         private boolean CheckInPost() {
@@ -206,8 +227,7 @@ public class CheckInService extends Service {
                 //Gson gson = new Gson();
                 //String[] data = GetCheckIns();
                 if (!checkInData.equals(null) && checkInData != "") {
-                    //String json = gson.toJson(data);
-                    //String json = data[0].toString();
+
                     String json = checkInData;
                     url = new URL(Utilities.AppURL + Utilities.VehicleCheckInListURL);
 
@@ -227,7 +247,7 @@ public class CheckInService extends Service {
                     int code = connection.getResponseCode();
 
                     if (code == 204) {
-                        dbHelper.clearVehicleEntryTable();
+
                         return true;
                     }
                     else {

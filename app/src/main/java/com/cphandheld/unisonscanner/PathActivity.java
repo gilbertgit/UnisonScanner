@@ -293,7 +293,7 @@ public class PathActivity extends HeaderActivity {
                 isr = new InputStreamReader(connection.getInputStream());
 
                 if (connection.getResponseCode() == 200) {
-                    //dbHelper.clearPathTable();
+                    dbHelper.clearPathTable(Utilities.currentContext.locationId);
                     result = Utilities.StreamToString(isr);
                     responseData = new JSONArray(result);
 
@@ -367,6 +367,7 @@ public class PathActivity extends HeaderActivity {
 
             try {
                 CheckInPost cip = new CheckInPost();
+                cip.ScannerSerialNumber = Utilities.scannerSN;
                 cip.Action = "MOVEBIN";
                 cip.LocationId = Utilities.currentContext.locationId;
                 cip.BinId = Utilities.currentContext.binId;
@@ -418,6 +419,7 @@ public class PathActivity extends HeaderActivity {
     }
 
     public class CheckInPost implements Serializable {
+        String ScannerSerialNumber;
         String Action;
         int LocationId;
         int BinId;

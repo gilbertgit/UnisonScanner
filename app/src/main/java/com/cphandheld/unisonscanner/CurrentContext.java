@@ -2,6 +2,7 @@ package com.cphandheld.unisonscanner;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Supernova on 2/16/2016.

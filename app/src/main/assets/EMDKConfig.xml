@@ -4,13 +4,16 @@
   </characteristic>
   <characteristic type="Profile">
     <parm name="ProfileName" value="DataCaptureProfile"/>
-    <parm name="ModifiedDate" value="2016-03-08 15:14:42"/>
+    <parm name="ModifiedDate" value="2016-06-10 12:02:12"/>
     <parm name="TargetSystemVersion" value="4.4"/>
-    <characteristic type="ActivitySelection" version="0.1">
+    
+    
+  <characteristic type="ActivitySelection" version="0.1">
       <parm name="emdk_name" value=""/>
       <characteristic type="Application">
         <parm name="package" value="com.cphandheld.unisonscanner"/>
         <characteristic type="Activities">
+          <parm name="activity" value="InspectionActivity"/>
           <parm name="activity" value="ScanActivity"/>
         </characteristic>
       </characteristic>
@@ -244,13 +247,26 @@
         <parm name="bdf_send_enter" value="false"/>
       </characteristic>
     </characteristic>
+    <characteristic type="Keystroke" version="0.1">
+      <parm name="emdk_name" value=""/>
+      <parm name="ime_output_enabled" value="false"/>
+      <parm name="keystroke_action_char" value="Default"/>
+      <characteristic type="BasicDataFormatting">
+        <parm name="bdf_enabled" value="Default"/>
+        <parm name="bdf_prefix" value=""/>
+        <parm name="bdf_suffix" value=""/>
+        <parm name="bdf_send_data" value="Default"/>
+        <parm name="bdf_send_hex" value="Default"/>
+        <parm name="bdf_send_tab" value="Default"/>
+        <parm name="bdf_send_enter" value="Default"/>
+      </characteristic>
+    </characteristic>
   </characteristic>
   <characteristic type="Profile">
     <parm name="ProfileName" value="StartStopWorkflow"/>
     <parm name="ModifiedDate" value="2016-03-21 17:39:25"/>
     <parm name="TargetSystemVersion" value="4.4"/>
-    
-  <characteristic type="ActivitySelection" version="0.1">
+    <characteristic type="ActivitySelection" version="0.1">
       <parm name="emdk_name" value=""/>
       <characteristic type="Application">
         <parm name="package" value="com.cphandheld.unisonscanner"/>

@@ -213,10 +213,11 @@ public class BinActivity extends HeaderActivity {
         }
     }
 
-    private class loadBins extends AsyncTask<String, Void, Void> {
+    private class loadBins extends AsyncTask<String, Void, Boolean> {
 
         private ListView listView;
         private Activity activity;
+        JSONArray responseData;
 
         public loadBins(Activity activity) {
             this.activity = activity;
@@ -228,38 +229,19 @@ public class BinActivity extends HeaderActivity {
         }
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected Boolean doInBackground(String... params) {
 
-            getBins(Integer.parseInt(params[0]));
-            return null;
+            return getBins(Integer.parseInt(params[0]));
+
         }
 
         @Override
-        protected void onPostExecute(Void unused) {
+        protected void onPostExecute(Boolean result) {
 
-            GetBinsDB();
-        }
-
-        private Void getBins(int locationId) {
-            HttpURLConnection connection;
-            InputStreamReader isr;
-            URL url;
-            String result;
-            JSONArray responseData;
-
-            try {
-                String address = Utilities.AppURL + Utilities.BinsURL + Integer.toString(locationId) + Utilities.AppURLSuffix;
-                url = new URL(address);
-                connection = (HttpURLConnection) url.openConnection();
-                isr = new InputStreamReader(connection.getInputStream());
-
-                if (connection.getResponseCode() == 200) {
-                    //dbHelper.clearBinTable();
-                    result = Utilities.StreamToString(isr);
-                    responseData = new JSONArray(result);
-
-                    bins = new ArrayList(responseData.length());
-
+            if (result)
+            {
+                try {
+                    dbHelper.clearBinTable(Utilities.currentContext.locationId);
                     for (int i = 0; i < responseData.length(); i++) {
                         JSONObject temp = responseData.getJSONObject(i);
                         String name = temp.getString("BinName");
@@ -268,13 +250,43 @@ public class BinActivity extends HeaderActivity {
                         // insert into database table Bin
                         dbHelper.insertBin(binId, name, Utilities.currentContext.locationId);
                     }
+                    GetBinsDB();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.i("getBins()", "error...");
+                }
+
+            }
+
+        }
+
+        private Boolean getBins(int locationId) {
+            HttpURLConnection connection;
+            InputStreamReader isr;
+            URL url;
+            String result;
+
+
+            try {
+                String address = Utilities.AppURL + Utilities.BinsURL + Integer.toString(locationId) + Utilities.AppURLSuffix;
+                url = new URL(address);
+                connection = (HttpURLConnection) url.openConnection();
+                isr = new InputStreamReader(connection.getInputStream());
+
+                if (connection.getResponseCode() == 200) {
+
+                    result = Utilities.StreamToString(isr);
+                    responseData = new JSONArray(result);
+
+                    bins = new ArrayList(responseData.length());
+                    return true;
                 }
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
                 Log.i("getBins()", "error...");
-                return null;
+                return false;
             }
-            return null;
+            return false;
         }
 
     }

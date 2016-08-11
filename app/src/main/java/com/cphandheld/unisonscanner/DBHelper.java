@@ -256,7 +256,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor getVehicleEntries(){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from " + VEHICLE_ENTRY_TABLE_NAME , null );
+        Cursor res =  db.rawQuery( "select * from " + VEHICLE_ENTRY_TABLE_NAME + " LIMIT 10", null );
         return res;
     }
 
@@ -278,9 +278,15 @@ public class DBHelper extends SQLiteOpenHelper {
         return res;
     }
 
+//    public Cursor getLocations(int organizationId){
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        Cursor res =  db.rawQuery( "select * from " + LOCATION_TABLE_NAME+ " where organizationId=?", new String[] {String.valueOf(organizationId)} );
+//        return res;
+//    }
+
     public Cursor getLocations(int organizationId){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from " + LOCATION_TABLE_NAME+ " where organizationId=?", new String[] {String.valueOf(organizationId)} );
+        Cursor res =  db.rawQuery( "select * from " + LOCATION_TABLE_NAME+ " where organizationId="+String.valueOf(organizationId), null);
         return res;
     }
 
@@ -353,10 +359,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] { Integer.toString(id) });
     }
 
-    public void clearVehicleEntryTable()
+    public void clearVehicleEntryTable(String toRemove)
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + VEHICLE_ENTRY_TABLE_NAME);
+        db.execSQL("DELETE FROM " + VEHICLE_ENTRY_TABLE_NAME + " WHERE id IN ("+toRemove+")");
     }
 
     public void clearVehicleTable()
@@ -365,16 +371,20 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + VEHICLE_TABLE_NAME);
     }
 
-    public void clearBinTable()
+    public void clearBinTable(int locId)
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + BIN_TABLE_NAME);
+        db.delete(BIN_TABLE_NAME,
+                BIN_COLUMN_LOCATION_ID + " = ? ",
+                new String[] { Integer.toString(locId) });
     }
 
-    public void clearLocationTable()
+    public void clearLocationTable(int orgId)
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + LOCATION_TABLE_NAME);
+        db.delete(LOCATION_TABLE_NAME,
+                LOCATION_COLUMN_ORGANIZATION_ID + " = ? ",
+                new String[] { Integer.toString(orgId) });
     }
 
     public void clearOrganizationTable()
@@ -383,10 +393,12 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + ORGANIZATION_TABLE_NAME);
     }
 
-    public void clearPathTable()
+    public void clearPathTable(int locationId)
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + PATH_TABLE_NAME);
+        db.delete(PATH_TABLE_NAME,
+                PATH_COLUMN_LOCATION_ID + " = ? ",
+                new String[] { Integer.toString(locationId) });
     }
 
 }
