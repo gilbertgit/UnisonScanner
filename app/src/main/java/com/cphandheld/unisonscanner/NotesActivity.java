@@ -38,6 +38,7 @@ public class NotesActivity extends HeaderActivity {
 
     private ProgressDialog mProgressDialog;
     private DBHelper dbHelper;
+    private CheckInPost cip;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,22 @@ public class NotesActivity extends HeaderActivity {
             @Override
             public void onClick(View view) {
                 Utilities.currentContext.notes = textNotes.getText().toString();
+
+                cip = new CheckInPost();
+                cip.ScannerSerialNumber = Utilities.scannerSN;
+                cip.Action = "CHECKIN";
+                cip.LocationId = Utilities.currentContext.locationId;
+                cip.BinId = Utilities.currentContext.binId;
+                cip.PathId = Utilities.currentContext.pathId;
+                cip.Notes = Utilities.currentContext.notes;
+                cip.UserId = Utilities.currentUser.userId;
+                cip.StartPath = Utilities.currentContext.startPath;
+                cip.Vehicle = Utilities.currentContext.vehicle;
+                cip.Vehicle.Stock = Utilities.currentContext.Stock;
+                cip.ScannedDate = Utilities.currentContext.scannedDate;
+                cip.Latitude = Utilities.currentContext.latitude;
+                cip.Longitude = Utilities.currentContext.longitude;
+
                 StoreVehicleCheckIn();
 
                 Intent i = new Intent(NotesActivity.this, ScanActivity.class);
@@ -109,21 +126,8 @@ public class NotesActivity extends HeaderActivity {
 
     private void StoreVehicleCheckIn()
     {
-        CheckInPost cip = new CheckInPost();
-        cip.Action = "CHECKIN";
-        cip.LocationId = Utilities.currentContext.locationId;
-        cip.BinId = Utilities.currentContext.binId;
-        cip.PathId = Utilities.currentContext.pathId;
-        cip.Notes = Utilities.currentContext.notes;
-        cip.UserId = Utilities.currentUser.userId;
-        cip.StartPath = Utilities.currentContext.startPath;
-        cip.Vehicle = Utilities.currentContext.vehicle;
-        cip.Vehicle.Stock = Utilities.currentContext.Stock;
-        cip.ScannedDate = Utilities.currentContext.scannedDate;
-
         Gson gson = new Gson();
         String json = gson.toJson(cip);
-
         dbHelper.insertVehicleEntry(json);
     }
 
@@ -174,16 +178,6 @@ public class NotesActivity extends HeaderActivity {
             String result;
 
             try {
-                CheckInPost cip = new CheckInPost();
-                cip.Action = "CHECKIN";
-                cip.LocationId = Utilities.currentContext.locationId;
-                cip.BinId = Utilities.currentContext.binId;
-                cip.PathId = Utilities.currentContext.pathId;
-                cip.Notes = Utilities.currentContext.notes;
-                cip.UserId = Utilities.currentUser.userId;
-                cip.StartPath = Utilities.currentContext.startPath;
-                cip.Vehicle = Utilities.currentContext.vehicle;
-                cip.ScannedDate = Utilities.currentContext.scannedDate;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -221,23 +215,6 @@ public class NotesActivity extends HeaderActivity {
             }
 
             return false;
-        }
-    }
-
-    public class CheckInPost implements Serializable {
-        String Action;
-        int LocationId;
-        int BinId;
-        int PathId;
-        String Notes;
-        int UserId;
-        boolean StartPath;
-        Vehicle Vehicle;
-        String Stock;
-        String ScannedDate;
-
-
-        CheckInPost() {
         }
     }
 }

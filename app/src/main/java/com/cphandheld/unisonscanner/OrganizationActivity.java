@@ -71,19 +71,17 @@ public class OrganizationActivity extends HeaderActivity
         // Set the default app url
         String appUrl = settings.getString("appUrl", "");
         if(appUrl.equals("")) {
-            appUrl = getString(R.string.unison20_url);
-            textUrl.setText("UNISON 2.0");
+            appUrl = getString(R.string.unison10_url);
+            textUrl.setText("UNISON Prod");
             Utilities.SetAppUrl(appUrl);
             editor.putString("appUrl", appUrl);
             editor.commit();
         }
         else if(appUrl.equals(getString(R.string.unison20_url)))
-            textUrl.setText("UNISON 2.0");
+            textUrl.setText("UNISON Stage");
         else
-            textUrl.setText("UNISON 1.0");
+            textUrl.setText("UNISON Prod");
 
-
-//"http://unisonedge.cphandheld.com/"
         buttonChangeUrl = (Button) findViewById(R.id.buttonChangeUrl);
         buttonChangeUrl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,13 +92,13 @@ public class OrganizationActivity extends HeaderActivity
 
                 String appUrl = settings.getString("appUrl", "");
                 if(appUrl.equals(getString(R.string.unison20_url))) {
-                    // change it to Unison 1.0 database
-                    textUrl.setText("UNISON 1.0");
+                    // change it to Unison Prod
+                    textUrl.setText("UNISON Prod");
                     appUrl = "http://unison.cphandheld.com/";
                 }
                 else {
-                    // change it to Unison 2.0 database
-                    textUrl.setText("UNISON 2.0");
+                    // change it to Unison Stage API
+                    textUrl.setText("UNISON Stage");
                     appUrl = getString(R.string.unison20_url);
                 }
 

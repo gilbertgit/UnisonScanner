@@ -378,6 +378,8 @@ public class PathActivity extends HeaderActivity {
                 cip.Vehicle = Utilities.currentContext.vehicle;
                 cip.Vehicle.Stock = Utilities.currentContext.Stock;
                 cip.ScannedDate = Utilities.currentContext.scannedDate;
+                cip.Latitude = Utilities.currentContext.latitude;
+                cip.Longitude = Utilities.currentContext.longitude;
 
                 Gson gson = new Gson();
                 String json = gson.toJson(cip);
@@ -415,23 +417,6 @@ public class PathActivity extends HeaderActivity {
             }
 
             return false;
-        }
-    }
-
-    public class CheckInPost implements Serializable {
-        String ScannerSerialNumber;
-        String Action;
-        int LocationId;
-        int BinId;
-        int PathId;
-        String Notes;
-        int UserId;
-        boolean StartPath;
-        Vehicle Vehicle;
-        String ScannedDate;
-
-
-        CheckInPost() {
         }
     }
 }

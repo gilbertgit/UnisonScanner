@@ -13,6 +13,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 import android.view.MotionEvent;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -75,6 +77,10 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     private EMDKManager emdkManager = null;
 
     private BroadcastReceiver EMDKReceiver;
+    private GPSHelper gpsHelper;
+    private double latitude;
+    private double longitude;
+    private double altitude;
 
 
     @Override
@@ -92,11 +98,27 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         imageStatus = (ImageView) findViewById(R.id.imageStatus);
         imageStatus.setVisibility(View.INVISIBLE);
 
+
         EMDKResults results = EMDKManager.getEMDKManager(getApplicationContext(), this);
         // Check the return status of getEMDKManager and update the status Text
         // View accordingly
         if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
             textStatus.setText("EMDKManager Request Failed");
+        }
+
+        gpsHelper = new GPSHelper(ScanActivity.this);
+        // check if GPS enabled
+        if (gpsHelper.canGetLocation()) {
+            latitude = gpsHelper.getLatitude();
+            longitude = gpsHelper.getLongitude();
+
+            Log.v(TAG, "Initial Latitude: " + String.valueOf(latitude));
+            Log.v(TAG, "Initial Longitude: " + String.valueOf(longitude));
+        } else {
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            gpsHelper.showSettingsAlert();
         }
     }
 
@@ -111,6 +133,9 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setTitle("Fetching vehicle info...");
         mProgressDialog.setMessage("Hold on a sec...");
+
+        if(gpsHelper == null)
+            gpsHelper = new GPSHelper(ScanActivity.this);
 
         textStatus.setText("Scan a VIN");
         IntentFilter intentFilter = new IntentFilter(getString(R.string.scan_intent));
@@ -129,6 +154,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
                     //Check that we have received data
                     if (data != null && data.length() > 0) {
+
                         final String barcode = Utilities.CheckVinSpecialCases(data);
 
                         if (barcode.length() != 17) {
@@ -138,6 +164,16 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             imageStatus.setImageResource(R.drawable.x);
                             imageStatus.setVisibility(View.VISIBLE);
                         } else {
+                            latitude = gpsHelper.getLatitude();
+                            longitude = gpsHelper.getLongitude();
+                            //altitude = gpsHelper.getAltitude();
+                            //Log.v("GPS", "Latitude: " + String.valueOf(latitude));
+                            //Log.v("GPS", "Longitude: " + String.valueOf(longitude));
+
+                            DecimalFormat newFormat = new DecimalFormat("##.######");
+                            Utilities.currentContext.latitude = Double.valueOf(newFormat.format(latitude));
+                            Utilities.currentContext.longitude = Double.valueOf(newFormat.format(longitude));
+
                             textVIN.setText(barcode);
                             imageStatus.setImageResource(R.drawable.check);
                             imageStatus.setVisibility(View.VISIBLE);
@@ -283,6 +319,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     protected void onPause() {
         super.onPause();
 
+        gpsHelper.stopUsingGPS();
+
         this.unregisterReceiver(EMDKReceiver);
         receiverRemoved = true;
     }
@@ -310,7 +348,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
             if (VerifyVehicle((params[0]))) {
                 mProgressDialog.dismiss();
-                mProgressDialog = null;
+                //mProgressDialog = null;
                 if (locationMatch) {
                     onClosed();
                     Intent i;
@@ -325,7 +363,7 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                 return null;
             } else {
                 mProgressDialog.dismiss();
-                mProgressDialog = null;
+                //mProgressDialog = null;
                 if (validVin && !procError) {
                     onClosed();
                     Intent i = new Intent(ScanActivity.this, VehicleActivity.class);

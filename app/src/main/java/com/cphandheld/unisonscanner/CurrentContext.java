@@ -22,6 +22,8 @@ public class CurrentContext implements Serializable
     VehicleTicket vehicleTicket;
     String Stock;
     String scannedDate;
+    double latitude;
+    double longitude;
 
     CurrentContext() {
     }
