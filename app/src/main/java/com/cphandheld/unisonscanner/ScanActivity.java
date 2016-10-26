@@ -8,9 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
 import android.view.MotionEvent;
 import android.widget.EditText;
@@ -77,7 +79,9 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     private EMDKManager emdkManager = null;
 
     private BroadcastReceiver EMDKReceiver;
-    private GPSHelper gpsHelper;
+    private GPSService gpsService;
+    Intent gpsServiceIntent;
+    private Location lastKnownLoc;
     private double latitude;
     private double longitude;
     private double altitude;
@@ -106,20 +110,23 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
             textStatus.setText("EMDKManager Request Failed");
         }
 
-        gpsHelper = new GPSHelper(ScanActivity.this);
-        // check if GPS enabled
-        if (gpsHelper.canGetLocation()) {
-            latitude = gpsHelper.getLatitude();
-            longitude = gpsHelper.getLongitude();
 
-            Log.v(TAG, "Initial Latitude: " + String.valueOf(latitude));
-            Log.v(TAG, "Initial Longitude: " + String.valueOf(longitude));
-        } else {
+        // Create instance of service so we have context
+        gpsService = new GPSService(ScanActivity.this);
+
+        // check if GPS enabled
+        if (!gpsService.canGetLocation()) {
             // can't get location
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings
-            gpsHelper.showSettingsAlert();
+            gpsService.showSettingsAlert();
         }
+
+        gpsServiceIntent = new Intent(this, GPSHelper.class);
+        startService(gpsServiceIntent);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mGPSReceiver, new IntentFilter(getString(R.string.intent_gps_receiver)));
     }
 
     @Override
@@ -134,8 +141,8 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         mProgressDialog.setTitle("Fetching vehicle info...");
         mProgressDialog.setMessage("Hold on a sec...");
 
-        if(gpsHelper == null)
-            gpsHelper = new GPSHelper(ScanActivity.this);
+        if(gpsService == null)
+            gpsService = new GPSService(ScanActivity.this);
 
         textStatus.setText("Scan a VIN");
         IntentFilter intentFilter = new IntentFilter(getString(R.string.scan_intent));
@@ -164,11 +171,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             imageStatus.setImageResource(R.drawable.x);
                             imageStatus.setVisibility(View.VISIBLE);
                         } else {
-                            latitude = gpsHelper.getLatitude();
-                            longitude = gpsHelper.getLongitude();
-                            //altitude = gpsHelper.getAltitude();
-                            //Log.v("GPS", "Latitude: " + String.valueOf(latitude));
-                            //Log.v("GPS", "Longitude: " + String.valueOf(longitude));
 
                             DecimalFormat newFormat = new DecimalFormat("##.######");
                             Utilities.currentContext.latitude = Double.valueOf(newFormat.format(latitude));
@@ -180,9 +182,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
                             textStatus.setText("");
 
                             Utilities.currentContext.vehicle = new Vehicle();
-
-//                            SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
-//                            String currentDateTime = sdf.format(new Date());
 
                             final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss a");
                             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -204,6 +203,21 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
         this.registerReceiver(EMDKReceiver, intentFilter);
         receiverRemoved = false;
     }
+
+    private BroadcastReceiver mGPSReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("Status");
+            Bundle b = intent.getBundleExtra("Location");
+            lastKnownLoc = (Location) b.getParcelable("Location");
+            if (lastKnownLoc != null) {
+                latitude = lastKnownLoc.getLatitude();
+                longitude = lastKnownLoc.getLongitude();
+
+            }
+        }
+    };
 
     private class checkConnectionAndVerifyTask extends AsyncTask<String, Void, Boolean> {
         String barcode = "";
@@ -258,15 +272,13 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
 
     public void onBackPressed() {
         onClosed();
-//        this.unregisterReceiver(EMDKReceiver);
-//        receiverRemoved = true;
+
         Intent i = new Intent(ScanActivity.this, LocationActivity.class);
         i.putExtra("back", true);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         setResult(5, i);
 
-        //startActivityForResult(i, RESULT_OK);
         finish();
     }
 
@@ -319,8 +331,6 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     protected void onPause() {
         super.onPause();
 
-        gpsHelper.stopUsingGPS();
-
         this.unregisterReceiver(EMDKReceiver);
         receiverRemoved = true;
     }
@@ -328,6 +338,9 @@ public class ScanActivity extends HeaderActivity implements EMDKListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        gpsService.stopUsingGPS();
+
+        stopService(gpsServiceIntent);
     }
 
     protected void onStop() {

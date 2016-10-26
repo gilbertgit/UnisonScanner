@@ -32,6 +32,7 @@
     <string name="scan_intent">"com.cphandheld.unisonscanner.RECVRBI"</string>
     <string name="local_service_started">Unison Running</string>
     <string name="unison10_url">http://unison.cphandheld.com/</string>
-    <string name="unison20_url">http://unison-stage.cphandheld.com/</string>
-    <!--<string name="unison20_url">http://unisonedge.cphandheld.com/</string>-->
+    <string name="unison20_url">http://unison-QA.cphandheld.com/</string>
+    <string name="intent_gps_receiver">com.cphandheld.CPHMobileRec.GPS_RECEIVER</string>
+    <!--<string name="unison20_url">http://10.0.0.143/</string>-->
 </resources>

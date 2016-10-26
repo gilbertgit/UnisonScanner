@@ -158,6 +158,7 @@ public class CheckInService extends Service {
 
         if (c.moveToFirst()) {
             do {
+
                 checkIns.add(c.getString(c.getColumnIndex("data")));
                 checkinsToRemove.add(c.getInt(0));
 
